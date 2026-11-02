@@ -1,6 +1,5 @@
 package com.mycompany.tr1.bdd.cafeteria.modelo;
-
-public class Ingrediente {
+public class Ingrediente{
     private int id;
     private String nombre;
     private UnidadMedida unidadMedida;

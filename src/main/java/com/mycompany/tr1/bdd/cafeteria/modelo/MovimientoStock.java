@@ -2,7 +2,7 @@ package com.mycompany.tr1.bdd.cafeteria.modelo;
 
 import java.time.LocalDateTime;
 
-public class MovimientoStock {
+public class MovimientoStock{
     private int id;
     private LocalDateTime fecha;
     private Ingrediente ingrediente;

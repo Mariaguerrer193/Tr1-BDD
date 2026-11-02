@@ -1,6 +1,6 @@
 package com.mycompany.tr1.bdd.cafeteria.modelo;
 
-public class Bebida extends Producto {
+public class Bebida extends Producto{
     private double precioBase;
     private int stockUnidades;
 

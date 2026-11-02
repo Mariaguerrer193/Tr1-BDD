@@ -1,6 +1,6 @@
 package com.mycompany.tr1.bdd.cafeteria.modelo;
 
-public class ItemReceta {
+public class ItemReceta{
     private Ingrediente ingrediente;
     private double cantidad;
 

@@ -1,6 +1,6 @@
 package com.mycompany.tr1.bdd.cafeteria.modelo;
 
-public class DetalleVenta {
+public class DetalleVenta{
     private Producto producto;
     private int cantidad;
     private double precioUnitario;
