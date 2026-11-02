@@ -1,4 +1,4 @@
-package com.ejercicio4.cafeteria.modelo;
+package com.mycompany.tr1.bdd.ejercicio4.modelo;
 
 import java.time.LocalDateTime;
 

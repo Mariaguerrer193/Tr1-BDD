@@ -1,10 +1,10 @@
-package com.ejercicio4.cafeteria;
-
-import com.ejercicio4.cafeteria.modelo.*;
-import com.ejercicio4.cafeteria.servicio.Cafeteria;
+package com.mycompany.tr1.bdd.ejercicio4;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.mycompany.tr1.bdd.ejercicio4.modelo.*;
+import com.mycompany.tr1.bdd.ejercicio4.servicio.Cafeteria;
 
 public class Main {
     public static void main(String[] args) {

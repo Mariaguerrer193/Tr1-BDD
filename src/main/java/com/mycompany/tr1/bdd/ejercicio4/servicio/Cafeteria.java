@@ -1,12 +1,12 @@
-package com.ejercicio4.cafeteria.servicio;
-
-import com.ejercicio4.cafeteria.modelo.*;
+package com.mycompany.tr1.bdd.ejercicio4.servicio;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.mycompany.tr1.bdd.ejercicio4.modelo.*;
 
 public class Cafeteria {
     private List<Ingrediente> ingredientes = new ArrayList<>();
