@@ -1,4 +1,4 @@
-package com.mycompany.tr1.bdd.cafeteria.modelo;
+package com.ejercicio4.cafeteria.modelo;
 
 public abstract class Producto {
     protected int id;

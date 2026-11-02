@@ -1,4 +1,4 @@
-package com.mycompany.tr1.bdd.cafeteria.modelo;
+package com.ejercicio4.cafeteria.modelo;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,4 +22,11 @@ public class Venta {
     public void agregarDetalle(DetalleVenta detalle) {
         detalles.add(detalle);
     }
+    public double getTotal() {
+    double total = 0;
+    for (DetalleVenta d : detalles) {
+        total += d.getPrecioUnitario() * d.getCantidad();
+    }
+    return total;
+}
 }

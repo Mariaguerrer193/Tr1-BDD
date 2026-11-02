@@ -1,4 +1,4 @@
-package com.mycompany.tr1.bdd.cafeteria.modelo;
+package com.ejercicio4.cafeteria.modelo;
 
 public class Bebida extends Producto{
     private double precioBase;
@@ -14,4 +14,9 @@ public class Bebida extends Producto{
     public int getStockUnidades() { return stockUnidades; }
 
     public void setStockUnidades(int stockUnidades) { this.stockUnidades = stockUnidades; }
+    public static final double IVA = 0.15;
+
+public double getPrecioConIva() {
+    return precioBase * (1 + IVA);
+}
 }
