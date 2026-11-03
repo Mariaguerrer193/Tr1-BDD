@@ -19,6 +19,10 @@ bash
 Abre la carpeta en VS Code (con el Extension Pack for Java instalado) o en NetBeans.
 Ejecuta la clase Main del ejercicio que quieras probar.
 
+
+
+
+
 EJERCICIO 1: Sistema de Biblioteca UTN
 
 Sistema en Java para el control de inventario, préstamo de libros y revistas, cálculo de multas por retraso y reportes para el administrador con persistencia en archivos de texto.
@@ -140,21 +144,21 @@ Libro y Revista heredan de Material. BibliotecaServicio gestiona las listas en m
 
 5. Operaciones de la clase BibliotecaServicio
 
-Método	Qué hace
+Método                     	       Qué hace
 registrarLibro, registrarRevista	Valida ID único, crea el ejemplar y actualiza materiales.txt.
-registrarUsuario	Valida cédula única, crea el usuario y actualiza usuarios.txt.
-prestarMaterial	Verifica disponibilidad, límite de 3 préstamos y ausencia de multas antes de generar el préstamo.
-devolverMaterial	Valida que no esté devuelto, restaura el stock, calcula multas por retraso y actualiza el saldo del usuario.
-pagarMultasUsuario	Pone a cero la deuda del socio en memoria y en el archivo usuarios.txt.
+registrarUsuario	                Valida cédula única, crea el usuario y actualiza usuarios.txt.
+prestarMaterial	                        Verifica disponibilidad, límite de 3 préstamos y ausencia de multas antes de generar el préstamo.
+devolverMaterial	                Valida que no esté devuelto, restaura el stock, calcula multas por retraso y actualiza el saldo del usuario.
+pagarMultasUsuario	                Pone a cero la deuda del socio en memoria y en el archivo usuarios.txt.
 
 6. Reportes para el administrador
 
-Reporte	Método
-Préstamos vencidos a la fecha	reportePrestamosVencidos(hoy)
-Historial de préstamos de un usuario	reporteHistorialUsuario(cedula)
-Materiales más prestados	reporteMaterialesMasPrestados()
-Total de multas generadas en un período	reporteTotalMultasPeriodo(desde, hasta)
-Auditoría de ejemplares disponibles	reporteAuditoriaDisponibles()
+Reporte                                     Método
+Préstamos vencidos a la fecha               reportePrestamosVencidos(hoy)
+Historial de préstamos de un usuario        reporteHistorialUsuario(cedula)
+Materiales más prestados                    reporteMaterialesMasPrestados()
+Total de multas generadas en un período     reporteTotalMultasPeriodo(desde, hasta)
+Auditoría de ejemplares disponibles         reporteAuditoriaDisponibles()
 
 7. Ejemplo de uso
 
@@ -232,7 +236,7 @@ Pruebas OK: 15 | Fallidas: 0
 
 11. Autor
 
-María José Guerrero - Ingeniería de Software, Universidad Técnica del Norte (UTN).
+María José Guerrero - Ingeniería de Software, Universidad Técnica del Norte
 
 
 
