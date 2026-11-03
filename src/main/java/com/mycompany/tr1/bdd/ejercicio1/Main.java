@@ -1,24 +1,28 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.tr1.bdd.ejercicio1;
+
+import com.mycompany.tr1.bdd.ejercicio1.modelo.Libro;
 import com.mycompany.tr1.bdd.ejercicio1.modelo.Material;
 import com.mycompany.tr1.bdd.ejercicio1.modelo.Prestamo;
+import com.mycompany.tr1.bdd.ejercicio1.modelo.Revista;
 import com.mycompany.tr1.bdd.ejercicio1.modelo.Usuario;
+import com.mycompany.tr1.bdd.ejercicio1.servicio.ArchivoServicio;
 import com.mycompany.tr1.bdd.ejercicio1.servicio.BibliotecaServicio;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
 /**
  *
  * @author maria
  */
 public class Main {
 
-    private static final Scanner scanner= new Scanner(System.in);
+    private static final Scanner scanner = new Scanner(System.in);
     private static final BibliotecaServicio servicio = new BibliotecaServicio();
+    private static int ok = 0;
+    private static int fallidas = 0;
 
     public static void main(String[] args) {
         int opcion;
@@ -33,6 +37,7 @@ public class Main {
                 case 5 -> cobrarMultas();
                 case 6 -> menuReportes();
                 case 7 -> listarCatalogo();
+                case 8 -> ejecutarPruebasAutomaticas();
                 case 0 -> System.out.println("\nSaliendo del sistema de biblioteca...");
                 default -> System.out.println("Opción no válida.");
             }
@@ -50,6 +55,7 @@ public class Main {
         System.out.println("5. Cobrar multas pendientes de usuario");
         System.out.println("6. Módulo de reportes y auditoría");
         System.out.println("7. Ver catálogo general");
+        System.out.println("8. Ejecutar pruebas automáticas ([OK]/[FALLO])");
         System.out.println("0. Salir");
         System.out.println("==========================================");
     }
@@ -71,7 +77,7 @@ public class Main {
         int ejemplares = leerEntero("Cantidad de ejemplares totales: ");
 
         if (ejemplares <= 0) {
-            System.out.println("La cantidad debe ser mayor a 0");
+            System.out.println("La cantidad debe ser mayor a 0.");
             return;
         }
 
@@ -94,14 +100,14 @@ public class Main {
         String nombre = scanner.nextLine().trim();
 
         if (cedula.isEmpty() || nombre.isEmpty()) {
-            System.out.println("La cédula y el nombre no pueden estar vacíos");
+            System.out.println("La cédula y el nombre no pueden estar vacíos.");
             return;
         }
 
         if (servicio.registrarUsuario(cedula, nombre)) {
-            System.out.println("Usuario registrado correctamente");
+            System.out.println("Usuario registrado correctamente.");
         } else {
-            System.out.println("Error: Ya existe un usuario registrado con esa cédula");
+            System.out.println("Error: Ya existe un usuario registrado con esa cédula.");
         }
     }
 
@@ -121,7 +127,7 @@ public class Main {
 
         String respuesta = servicio.prestarMaterial(idPrestamo, idMaterial, cedula, fechaSalida);
         if ("OK".equals(respuesta)) {
-            System.out.println("Préstamo registrado exitosamente");
+            System.out.println("Préstamo registrado exitosamente.");
         } else {
             System.out.println("No se pudo realizar el préstamo: " + respuesta);
         }
@@ -162,9 +168,9 @@ public class Main {
         String resp = scanner.nextLine().trim();
         if (resp.equalsIgnoreCase("S")) {
             servicio.pagarMultasUsuario(cedula);
-            System.out.println("Multas liquidadas con éxito");
+            System.out.println("Multas liquidadas con éxito.");
         } else {
-            System.out.println("Operación cancelada");
+            System.out.println("Operación cancelada.");
         }
     }
 
@@ -183,7 +189,7 @@ public class Main {
                 List<Prestamo> vencidos = servicio.reportePrestamosVencidos(hoy);
                 System.out.println("\n=== PRÉSTAMOS VENCIDOS A LA FECHA (" + hoy + ") ===");
                 if (vencidos.isEmpty()) {
-                    System.out.println("No hay préstamos vencidos");
+                    System.out.println("No hay préstamos vencidos.");
                 } else {
                     vencidos.forEach(System.out::println);
                 }
@@ -194,7 +200,7 @@ public class Main {
                 List<Prestamo> hist = servicio.reporteHistorialUsuario(ced);
                 System.out.println("\n=== HISTORIAL DE PRÉSTAMOS ===");
                 if (hist.isEmpty()) {
-                    System.out.println("No registra préstamos");
+                    System.out.println("No registra préstamos.");
                 } else {
                     hist.forEach(System.out::println);
                 }
@@ -203,7 +209,7 @@ public class Main {
                 List<String> ranking = servicio.reporteMaterialesMasPrestados();
                 System.out.println("\n=== MATERIALES MÁS PRESTADOS ===");
                 if (ranking.isEmpty()) {
-                    System.out.println("No hay registros de préstamos");
+                    System.out.println("No hay registros de préstamos.");
                 } else {
                     ranking.forEach(System.out::println);
                 }
@@ -215,7 +221,7 @@ public class Main {
                     double total = servicio.reporteTotalMultasPeriodo(desde, hasta);
                     System.out.printf("%nTotal de multas cobradas entre %s y %s: $%.2f%n", desde, hasta, total);
                 } else {
-                    System.out.println("Fechas inválidas");
+                    System.out.println("Fechas inválidas.");
                 }
             }
             case 5 -> {
@@ -223,7 +229,7 @@ public class Main {
                 System.out.println("\n=== AUDITORÍA DE EJEMPLARES DISPONIBLES ===");
                 audit.forEach(System.out::println);
             }
-            default -> System.out.println("Opción no válida");
+            default -> System.out.println("Opción no válida.");
         }
     }
 
@@ -231,19 +237,92 @@ public class Main {
         System.out.println("\n=== CATÁLOGO GENERAL DE MATERIALES ===");
         List<Material> lista = servicio.listarMateriales();
         if (lista.isEmpty()) {
-            System.out.println("Catálogo vacío");
+            System.out.println("Catálogo vacío.");
         } else {
             lista.forEach(System.out::println);
         }
     }
-    
-    
+
+    private static void ejecutarPruebasAutomaticas() {
+        ok = 0;
+        fallidas = 0;
+        System.out.println("\n==========================================");
+        System.out.println("             EJECUTANDO  PRUEBAS            ");
+        System.out.println("==========================================");
+
+        List<Material> matsPrueba = new ArrayList<>();
+        matsPrueba.add(new Libro("L001", "Estructuras de Datos en Java", 2));
+        matsPrueba.add(new Libro("L002", "Sistemas Operativos Modernos", 1));
+        matsPrueba.add(new Revista("R001", "IEEE Software", 1));
+        matsPrueba.add(new Revista("R002", "ACM Communications", 2));
+        ArchivoServicio.guardarMateriales(matsPrueba);
+
+        List<Usuario> usersPrueba = new ArrayList<>();
+        usersPrueba.add(new Usuario("1004567890", "Maria Guerrero"));
+        usersPrueba.add(new Usuario("1001234567", "Carlos Perez"));
+        usersPrueba.add(new Usuario("1009876543", "Ana Lopez"));
+        ArchivoServicio.guardarUsuarios(usersPrueba);
+
+        ArchivoServicio.guardarPrestamos(new ArrayList<>());
+
+        BibliotecaServicio bib = new BibliotecaServicio();
+        LocalDate hoy = LocalDate.now();
+
+        String res1 = bib.prestarMaterial("P001", "L001", "1004567890", hoy);
+        verificar("Préstamo exitoso de libro (P001)", "OK".equals(res1));
+        verificar("Disponibles de L001 disminuyen a 1", bib.buscarMaterialPorId("L001").getEjemplaresDisponibles() == 1);
+        verificar("Usuario María tiene 1 préstamo activo", bib.buscarUsuarioPorCedula("1004567890").getPrestamosActivos() == 1);
+
+        String res2 = bib.prestarMaterial("P002", "R001", "1004567890", hoy.minusDays(5));
+        verificar("Préstamo exitoso de revista (P002)", "OK".equals(res2));
+        verificar("Disponibles de R001 quedan en 0", bib.buscarMaterialPorId("R001").getEjemplaresDisponibles() == 0);
+
+        String resSinStock = bib.prestarMaterial("P003", "R001", "1001234567", hoy);
+        verificar("Rechazo de préstamo sin ejemplares disponibles", !"OK".equals(resSinStock));
+
+        bib.prestarMaterial("P004", "L002", "1004567890", hoy);
+        verificar("Usuario María alcanza el límite de 3 préstamos activos", bib.buscarUsuarioPorCedula("1004567890").getPrestamosActivos() == 3);
+
+        String resMaximo = bib.prestarMaterial("P005", "R002", "1004567890", hoy);
+        verificar("Rechazo de préstamo por exceder el máximo de 3 préstamos", !"OK".equals(resMaximo));
+
+        String resDevolucionConMulta = bib.devolverMaterial("P002", hoy);
+        verificar("Devolución con retraso genera multa", resDevolucionConMulta.toLowerCase().contains("multa"));
+        verificar("Usuario acumula $1.00 de multa pendiente", Math.abs(bib.buscarUsuarioPorCedula("1004567890").getMultasPendientes() - 1.00) < 1e-9);
+        verificar("Stock de R001 se restaura tras devolución", bib.buscarMaterialPorId("R001").getEjemplaresDisponibles() == 1);
+
+        String resDobleDevolucion = bib.devolverMaterial("P002", hoy);
+        boolean rechazoCorrecto = !resDobleDevolucion.toLowerCase().contains("correctamente") 
+                               && !resDobleDevolucion.toLowerCase().contains("exitosamente")
+                               && bib.buscarMaterialPorId("R001").getEjemplaresDisponibles() == 1;
+        verificar("Rechazo al intentar devolver dos veces el mismo préstamo", rechazoCorrecto);
+
+        String resBloqueoMulta = bib.prestarMaterial("P006", "R002", "1004567890", hoy);
+        verificar("Rechazo de préstamo a usuario con multas pendientes", resBloqueoMulta.contains("multas pendientes"));
+
+        boolean pagoExitoso = bib.pagarMultasUsuario("1004567890");
+        verificar("Pago total de multas exitoso", pagoExitoso && Math.abs(bib.buscarUsuarioPorCedula("1004567890").getMultasPendientes() - 0.0) < 1e-9);
+
+        String resDevolucionATiempo = bib.devolverMaterial("P001", hoy);
+        verificar("Devolución a tiempo no genera multas", resDevolucionATiempo.contains("sin multas"));
+
+        System.out.println("\nPruebas OK: " + ok + " | Fallidas: " + fallidas);
+    }
+
+    private static void verificar(String descripcion, boolean condicion) {
+        if (condicion) {
+            ok++;
+            System.out.println("[OK] " + descripcion);
+        } else {
+            fallidas++;
+            System.out.println("[FALLO] " + descripcion);
+        }
+    }
 
     private static int leerEntero(String mensaje) {
         System.out.print(mensaje);
         try {
-            int num = Integer.parseInt(scanner.nextLine().trim());
-            return num;
+            return Integer.parseInt(scanner.nextLine().trim());
         } catch (NumberFormatException e) {
             return -1;
         }
