@@ -2,6 +2,7 @@ package com.mycompany.tr1.bdd.ejercicio4;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.time.LocalDateTime;
 
 import com.mycompany.tr1.bdd.ejercicio4.modelo.*;
 import com.mycompany.tr1.bdd.ejercicio4.servicio.Cafeteria;
@@ -61,5 +62,9 @@ public class Main {
 
         cafeteria.reporteCostosPlatos();
         cafeteria.reporteListaDeCompras();
+        cafeteria.reportePlatosPreparables();
+        cafeteria.reportePlatosMasVendidos(
+                LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1), 5);
+        cafeteria.auditoriaStock();
     }
 }

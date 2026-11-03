@@ -211,4 +211,90 @@ public class Cafeteria {
                     i.getStockMinimo(), i.getStockMinimo() - i.getStockActual());
         }
     }
+
+    public int unidadesPreparables(Plato plato) {
+        List<ItemReceta> items = plato.getReceta().getItems();
+        if (items.isEmpty()) {
+            return 0;
+        }
+        int maximo = Integer.MAX_VALUE;
+        for (ItemReceta item : items) {
+            // el 1e-9 evita errores de redondeo de los decimales
+            int posibles = (int) Math.floor(
+                    item.getIngrediente().getStockActual() / item.getCantidad() + 1e-9);
+            maximo = Math.min(maximo, posibles);
+        }
+        return maximo;
+    }
+
+    public void reportePlatosPreparables() {
+        System.out.println("=== PLATOS QUE SE PUEDEN PREPARAR ===");
+        boolean alguno = false;
+        for (Plato plato : platos) {
+            int unidades = unidadesPreparables(plato);
+            if (unidades > 0) {
+                System.out.println(plato.getNombre() + ": " + unidades + " unidades");
+                alguno = true;
+            }
+        }
+        if (!alguno) {
+            System.out.println("No se puede preparar ningún plato con el stock actual");
+        }
+    }
+
+    public void reportePlatosMasVendidos(LocalDateTime desde, LocalDateTime hasta, int limite) {
+        Map<Plato, Integer> conteo = new LinkedHashMap<>();
+        for (Venta venta : ventas) {
+            if (venta.getFecha().isBefore(desde) || venta.getFecha().isAfter(hasta)) {
+                continue;
+            }
+            for (DetalleVenta detalle : venta.getDetalles()) {
+                if (detalle.getProducto() instanceof Plato) {
+                    conteo.merge((Plato) detalle.getProducto(), detalle.getCantidad(), Integer::sum);
+                }
+            }
+        }
+
+        List<Map.Entry<Plato, Integer>> ordenados = new ArrayList<>(conteo.entrySet());
+        ordenados.sort((a, b) -> b.getValue() - a.getValue());
+
+        System.out.println("=== PLATOS MÁS VENDIDOS ===");
+        if (ordenados.isEmpty()) {
+            System.out.println("No hay ventas de platos en ese período");
+            return;
+        }
+        for (int i = 0; i < Math.min(limite, ordenados.size()); i++) {
+            Map.Entry<Plato, Integer> e = ordenados.get(i);
+            System.out.println((i + 1) + ". " + e.getKey().getNombre() + " - " + e.getValue() + " unidades");
+        }
+    }
+
+    public void auditoriaStock() {
+        System.out.println("=== AUDITORÍA DE STOCK ===");
+        for (MovimientoStock m : movimientos) {
+            String signo = m.getTipo() == TipoMovimiento.ABASTECIMIENTO ? "+" : "-";
+            System.out.printf("#%d %s | %s | %s %s%.2f | %.2f -> %.2f | ref: %d%n",
+                    m.getId(), m.getFecha().toLocalDate(), m.getIngrediente().getNombre(),
+                    m.getTipo(), signo, m.getCantidad(),
+                    m.getStockAnterior(), m.getStockResultante(), m.getReferencia());
+        }
+
+        System.out.println("--- Verificación ---");
+        for (Ingrediente ingrediente : ingredientes) {
+            MovimientoStock ultimo = null;
+            for (MovimientoStock m : movimientos) {
+                if (m.getIngrediente().equals(ingrediente)) {
+                    ultimo = m;
+                }
+            }
+            if (ultimo == null) {
+                System.out.println(ingrediente.getNombre() + ": sin movimientos");
+            } else if (Math.abs(ultimo.getStockResultante() - ingrediente.getStockActual()) < 1e-9) {
+                System.out.println(ingrediente.getNombre() + ": OK");
+            } else {
+                System.out.println(ingrediente.getNombre() + ": DIFERENCIA (último movimiento "
+                        + ultimo.getStockResultante() + ", stock actual " + ingrediente.getStockActual() + ")");
+            }
+        }
+    }
 }
