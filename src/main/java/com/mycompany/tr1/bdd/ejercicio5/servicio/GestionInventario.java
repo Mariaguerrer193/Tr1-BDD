@@ -34,7 +34,7 @@ public class GestionInventario {
         artesanias.put(artesania.getId(), artesania);
     }
 
-    // Registrar recepcion de artesanias
+    // Registrar recepcion
     public void registrarRecepcion(int idRecepcion,
             int idArtesania, LocalDate fecha, int cantidad) {
 
@@ -56,7 +56,7 @@ public class GestionInventario {
         recepciones.put(idRecepcion, recepcion);
     }
 
-    // Consultar stock disponible
+    // Consultar stock
     public int consultarStock(int idArtesania) {
 
         if (!artesanias.containsKey(idArtesania)) {
@@ -92,6 +92,11 @@ public class GestionInventario {
     public List<Recepcion> obtenerPendientesDevolucion(
             LocalDate fechaActual) {
 
+        if (fechaActual == null) {
+            throw new IllegalArgumentException(
+                    "Fecha invalida");
+        }
+
         List<Recepcion> pendientes = new ArrayList<>();
 
         for (Recepcion r : recepciones.values()) {
@@ -103,7 +108,7 @@ public class GestionInventario {
         return pendientes;
     }
 
-    // Registrar una venta
+    // Registrar venta
     public Movimiento registrarVenta(int idMovimiento,
             int idArtesania, int cantidad, LocalDate fecha) {
 
@@ -112,7 +117,7 @@ public class GestionInventario {
                 idArtesania, cantidad, fecha);
     }
 
-    // Registrar devolucion al artesano propietario
+    // Registrar devolucion al propietario
     public Movimiento registrarDevolucion(int idMovimiento,
             int idArtesania, int idArtesano,
             int cantidad, LocalDate fecha) {
@@ -134,7 +139,7 @@ public class GestionInventario {
                 idArtesania, cantidad, fecha);
     }
 
-    // Validar y registrar movimientos
+    // Procesar ventas y devoluciones
     private Movimiento registrarMovimiento(
             int idMovimiento, Movimiento.Tipo tipo,
             int idArtesania, int cantidad, LocalDate fecha) {
@@ -151,7 +156,6 @@ public class GestionInventario {
                     "Artesania no registrada");
         }
 
-        // Validar todos los datos antes de descontar
         Movimiento movimiento = new Movimiento(
                 idMovimiento, tipo, artesania,
                 cantidad, fecha);
@@ -161,10 +165,10 @@ public class GestionInventario {
                     "Stock insuficiente");
         }
 
-        // Descontar de las recepciones disponibles
         int restante = cantidad;
 
         for (Recepcion r : recepciones.values()) {
+
             if (r.getArtesania().getId() == idArtesania
                     && restante > 0) {
 
@@ -182,17 +186,27 @@ public class GestionInventario {
         return movimiento;
     }
 
-    // Consultar historial de movimientos
-    public List<Movimiento> obtenerMovimientos() {
-        return new ArrayList<>(movimientos.values());
-    }
-
-    // Mostrar movimientos registrados
+    // Mostrar historial de movimientos
     public void mostrarMovimientos() {
         System.out.println("=== MOVIMIENTOS ===");
 
         for (Movimiento m : movimientos.values()) {
             System.out.println(m);
         }
+    }
+
+    // Obtener movimientos para reportes
+    public List<Movimiento> obtenerMovimientos() {
+        return new ArrayList<>(movimientos.values());
+    }
+
+    // Obtener artesanias para reportes
+    public List<Artesania> obtenerArtesanias() {
+        return new ArrayList<>(artesanias.values());
+    }
+
+    // Obtener recepciones para reportes
+    public List<Recepcion> obtenerRecepciones() {
+        return new ArrayList<>(recepciones.values());
     }
 }
