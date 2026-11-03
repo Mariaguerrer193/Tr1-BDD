@@ -45,5 +45,21 @@ public class Main {
             System.out.println("Rechazada: " + e.getMessage());
         }
         System.out.println("Arroz después del rechazo: " + arroz.getStockActual());
+        Ingrediente sal = new Ingrediente(3, "Sal", UnidadMedida.KG, 0, 0.5, 0);
+        cafeteria.agregarIngrediente(sal);
+
+        cafeteria.eliminarIngrediente(sal);
+        System.out.println("Sal eliminada correctamente");
+
+        try {
+            cafeteria.eliminarIngrediente(arroz);
+        } catch (IllegalStateException e) {
+            System.out.println("Rechazado: " + e.getMessage());
+        }
+        Ingrediente aceite = new Ingrediente(4, "Aceite", UnidadMedida.L, 0.5, 2, 3.00);
+        cafeteria.agregarIngrediente(aceite);
+
+        cafeteria.reporteCostosPlatos();
+        cafeteria.reporteListaDeCompras();
     }
 }
