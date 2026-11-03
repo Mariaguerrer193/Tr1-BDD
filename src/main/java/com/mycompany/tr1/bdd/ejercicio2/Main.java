@@ -1,20 +1,26 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
 package com.mycompany.tr1.bdd.ejercicio2;
+import com.mycompany.tr1.bdd.ejercicio2.modelo.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
-/**
- *
- * @author USER
- */
 public class Main {
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
-        // TODO code application logic here
+        
+        CuentaAhorro ahorro = new CuentaAhorro("001", "1002003004");
+
+        ahorro.depositar(1, LocalDateTime.now(),
+                new BigDecimal("100.00"), "Deposito inicial");
+
+        ahorro.retirar(2, LocalDateTime.now(),
+                new BigDecimal("20.00"), "Retiro");
+
+        System.out.println("Saldo actual: $" + ahorro.getSaldo());
+
+        for (Movimiento movimiento : ahorro.getMovimientos()) {
+            System.out.println(movimiento);
+        }
+
     }
     
 }
