@@ -179,4 +179,36 @@ public class Cafeteria {
         }
         ingredientes.remove(ingrediente);
     }
+
+    public void reporteCostosPlatos() {
+        System.out.println("=== COSTO, PRECIO Y MARGEN POR PLATO ===");
+        for (Plato plato : platos) {
+            System.out.printf("%-20s Costo: %.2f | Precio: %.2f | Margen: %.2f%n",
+                    plato.getNombre(), plato.getCosto(), plato.getPrecioVenta(), plato.getMargen());
+        }
+    }
+
+    public List<Ingrediente> listaDeCompras() {
+        List<Ingrediente> faltantes = new ArrayList<>();
+        for (Ingrediente ingrediente : ingredientes) {
+            if (ingrediente.getStockActual() < ingrediente.getStockMinimo()) {
+                faltantes.add(ingrediente);
+            }
+        }
+        return faltantes;
+    }
+
+    public void reporteListaDeCompras() {
+        System.out.println("=== LISTA DE COMPRAS ===");
+        List<Ingrediente> faltantes = listaDeCompras();
+        if (faltantes.isEmpty()) {
+            System.out.println("Todos los ingredientes están sobre el stock mínimo");
+            return;
+        }
+        for (Ingrediente i : faltantes) {
+            System.out.printf("%s (%s) | Stock: %.2f | Mínimo: %.2f | Falta: %.2f%n",
+                    i.getNombre(), i.getUnidadMedida(), i.getStockActual(),
+                    i.getStockMinimo(), i.getStockMinimo() - i.getStockActual());
+        }
+    }
 }

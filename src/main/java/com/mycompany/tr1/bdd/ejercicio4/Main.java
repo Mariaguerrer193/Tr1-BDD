@@ -56,5 +56,10 @@ public class Main {
         } catch (IllegalStateException e) {
             System.out.println("Rechazado: " + e.getMessage());
         }
+        Ingrediente aceite = new Ingrediente(4, "Aceite", UnidadMedida.L, 0.5, 2, 3.00);
+        cafeteria.agregarIngrediente(aceite);
+
+        cafeteria.reporteCostosPlatos();
+        cafeteria.reporteListaDeCompras();
     }
 }

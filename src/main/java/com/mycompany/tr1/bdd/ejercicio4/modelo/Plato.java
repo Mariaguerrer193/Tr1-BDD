@@ -8,16 +8,23 @@ public class Plato extends Producto {
         this.receta = receta;
     }
 
-    public Receta getReceta() { return receta; }
-    public double getCosto() {
-    double costo = 0;
-    for (ItemReceta item : receta.getItems()) {
-        costo += item.getIngrediente().getCostoPorUnidad() * item.getCantidad();
+    public Receta getReceta() {
+        return receta;
     }
-    return costo;
-}
 
-public double getPrecioVenta() {
-    return getCosto() * 2;
-}
+    public double getCosto() {
+        double costo = 0;
+        for (ItemReceta item : receta.getItems()) {
+            costo += item.getIngrediente().getCostoPorUnidad() * item.getCantidad();
+        }
+        return costo;
+    }
+
+    public double getPrecioVenta() {
+        return getCosto() * 2;
+    }
+
+    public double getMargen() {
+        return getPrecioVenta() - getCosto();
+    }
 }
