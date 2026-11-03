@@ -65,4 +65,36 @@ public class BibliotecaServicio {
         }
         return disponibles;
     }
+
+    public boolean registrarUsuario(String cedula, String nombre) {
+        if (buscarUsuarioPorCedula(cedula) != null) {
+            return false;
+        }
+        usuarios.add(new Usuario(cedula, nombre));
+        ArchivoServicio.guardarUsuarios(usuarios);
+        return true;
+    }
+
+    public Usuario buscarUsuarioPorCedula(String cedula) {
+        for (Usuario u : usuarios) {
+            if (u.getCedula().equalsIgnoreCase(cedula)) {
+                return u;
+            }
+        }
+        return null;
+    }
+
+    public List<Usuario> listarUsuarios() {
+        return new ArrayList<>(usuarios);
+    }
+
+    public boolean pagarMultasUsuario(String cedula) {
+        Usuario u = buscarUsuarioPorCedula(cedula);
+        if (u == null || u.getMultasPendientes() == 0.0) {
+            return false;
+        }
+        u.pagarMultas();
+        ArchivoServicio.guardarUsuarios(usuarios);
+        return true;
+    }
 }
