@@ -475,4 +475,399 @@ Juan Diego - Ingeniería de Software, Universidad Técnica del Norte (UTN).
 
 
 
-EJERCICIO 5:
+EJERCICIO 5: Tienda de Artesanías de Otavalo
+
+Sistema desarrollado en Java para administrar las artesanías entregadas en consignación por artesanos de distintas comunidades de Otavalo. Permite registrar artesanos, productos, recepciones, ventas, devoluciones, comisiones y reportes, utilizando programación orientada a objetos y persistencia en archivos de texto.
+
+**Código en:** `src/main/java/com/mycompany/tr1/bdd/ejercicio5/`
+
+**Clase principal:** `ejercicio5/Main.java`
+
+**Clase de pruebas:** `ejercicio5/servicio/PruebasEjercicio5.java`
+
+## 1. Enunciado resumido
+
+Una tienda de artesanías de Otavalo comercializa productos textiles y tallas de madera elaborados por artesanos de diferentes comunidades.
+
+El sistema debe registrar los datos de cada artesano y sus artesanías, controlar las unidades recibidas en consignación, realizar ventas y devoluciones y calcular las comisiones correspondientes.
+
+- Las artesanías textiles generan una comisión del 20 % para la tienda.
+- Las tallas de madera generan una comisión del 25 % para la tienda.
+- Las artesanías que permanecen más de 90 días sin venderse deben identificarse para su devolución.
+- Las ventas y devoluciones descuentan unidades del inventario.
+- No se permite vender o devolver más unidades que las disponibles.
+- Las devoluciones deben realizarse al artesano propietario.
+- El sistema genera cinco reportes administrativos.
+- La información se guarda y recupera mediante un archivo TXT.
+
+## 2. Reglas de negocio
+
+| N.º | Regla |
+|---|---|
+| 1 | Cada artesanía pertenece a un artesano identificado mediante un ID. |
+| 2 | Las artesanías pueden ser de tipo TEXTIL o TALLA_MADERA. |
+| 3 | La comisión de los textiles es del 20 % del valor vendido. |
+| 4 | La comisión de las tallas de madera es del 25 % del valor vendido. |
+| 5 | El pago al artesano es igual al total vendido menos la comisión de la tienda. |
+| 6 | Cada recepción registra fecha, cantidad recibida y cantidad disponible. |
+| 7 | Una venta válida descuenta las unidades correspondientes del inventario. |
+| 8 | No se permiten ventas ni devoluciones con stock insuficiente. |
+| 9 | Las devoluciones solamente pueden registrarse a nombre del artesano propietario. |
+| 10 | Las recepciones con más de 90 días y unidades disponibles se identifican para devolución. |
+| 11 | No se permite registrar productos, recepciones o movimientos con identificadores duplicados. |
+| 12 | No se puede eliminar un artesano que tenga artesanías registradas. |
+| 13 | No se puede eliminar una artesanía que tenga recepciones o movimientos asociados. |
+| 14 | Se rechazan cantidades no positivas y precios de venta inválidos. |
+| 15 | La información se almacena y recupera desde `datos/ejercicio5.txt`. |
+
+## 3. Estructura de carpetas
+
+```text
+ejercicio5/
+├── Main.java
+├── modelo/
+│   ├── Artesano.java
+│   ├── Artesania.java
+│   ├── Recepcion.java
+│   └── Movimiento.java
+└── servicio/
+    ├── GestionInventario.java
+    ├── Reportes.java
+    ├── ArchivoInventario.java
+    └── PruebasEjercicio5.java
+```
+
+**Archivo de almacenamiento:**
+
+```text
+Tr1-BDD/
+└── datos/
+    └── ejercicio5.txt
+```
+
+## 4. Descripción de las clases
+
+### Artesano
+
+Representa al productor de las artesanías.
+
+**Atributos principales:**
+- `int id`
+- `String nombre`
+- `String comunidad`
+
+**Métodos principales:**
+- `getId()`
+- `getNombre()`
+- `getComunidad()`
+- `setNombre(nombre)`
+- `setComunidad(comunidad)`
+- `toString()`
+
+### Artesania
+
+Representa una artesanía entregada a la tienda.
+
+**Atributos principales:**
+- `int id`
+- `String nombre`
+- `Tipo tipo`
+- `double precioVenta`
+- `Artesano artesano`
+
+El enumerado `Tipo` permite seleccionar `TEXTIL` o `TALLA_MADERA`.
+
+**Métodos principales:**
+- `getPorcentajeComision()`
+- `calcularComision()`
+- `calcularPagoArtesano()`
+- `getArtesano()`
+- `getPrecioVenta()`
+
+### Recepcion
+
+Registra las unidades que llegan a la tienda en consignación.
+
+**Atributos principales:**
+- `int id`
+- `Artesania artesania`
+- `LocalDate fechaRecepcion`
+- `int cantidadRecibida`
+- `int cantidadDisponible`
+
+**Métodos principales:**
+- `requiereDevolucion(fechaActual)`
+- `descontarUnidades(cantidad)`
+- `getCantidadDisponible()`
+- `getCantidadRecibida()`
+
+### Movimiento
+
+Registra las ventas y devoluciones realizadas.
+
+**Atributos principales:**
+- `int id`
+- `Tipo tipo`
+- `Artesania artesania`
+- `int cantidad`
+- `LocalDate fecha`
+- `BigDecimal totalVenta`
+- `BigDecimal comision`
+- `BigDecimal pagoArtesano`
+
+El enumerado `Tipo` contiene `VENTA` y `DEVOLUCION`.
+
+Se utiliza `BigDecimal` para los resultados monetarios de las ventas y comisiones.
+
+### GestionInventario
+
+Es la clase principal de la lógica del negocio. Administra los artesanos, productos, recepciones y movimientos.
+
+**Métodos principales:**
+
+| Método | Función |
+|---|---|
+| `registrarArtesano()` | Registra un nuevo artesano. |
+| `registrarArtesania()` | Registra un producto y su propietario. |
+| `registrarRecepcion()` | Registra las unidades recibidas. |
+| `consultarStock()` | Calcula las unidades disponibles. |
+| `registrarVenta()` | Valida y registra una venta. |
+| `registrarDevolucion()` | Valida y registra una devolución. |
+| `eliminarArtesano()` | Elimina al artesano si no tiene productos asociados. |
+| `eliminarArtesania()` | Elimina productos sin recepciones ni movimientos. |
+| `obtenerPendientesDevolucion()` | Identifica recepciones con más de 90 días. |
+| `mostrarInventario()` | Presenta las existencias. |
+| `mostrarMovimientos()` | Presenta el historial de operaciones. |
+
+### Reportes
+
+Contiene los métodos que generan los cinco reportes solicitados.
+
+### ArchivoInventario
+
+Permite guardar y recuperar la información mediante archivos de texto.
+
+### PruebasEjercicio5
+
+Ejecuta 20 pruebas automáticas para verificar cálculos, restricciones, inventario y almacenamiento de datos.
+
+## 5. Operaciones principales
+
+El sistema realiza las siguientes operaciones:
+
+**Registro de artesanías:** verifica que el producto no esté duplicado y registra su relación con el artesano propietario.
+
+**Recepción de productos:** registra la fecha y la cantidad recibida, inicializando las unidades disponibles.
+
+**Venta:** comprueba las existencias antes de descontar unidades. Calcula el total de la venta, la comisión y el pago correspondiente al artesano.
+
+**Devolución:** verifica que existan suficientes unidades y que el destinatario sea el artesano propietario.
+
+**Control de antigüedad:** identifica las recepciones que superan los 90 días y todavía tienen unidades disponibles.
+
+**Eliminación de registros:** impide eliminar artesanos o artesanías cuando existen relaciones que deben conservarse.
+
+**Persistencia:** guarda los datos en un archivo TXT y permite reconstruir el estado del inventario en una nueva ejecución.
+
+## 6. Reportes para el administrador
+
+| Reporte | Método |
+|---|---|
+| Liquidación por artesano | `liquidacion(inventario, desde, hasta)` |
+| Artesanías pendientes de devolución | `pendientesDevolucion(inventario, hoy)` |
+| Comunidades con más ventas | `comunidadesMasVentas(inventario, desde, hasta)` |
+| Artesanías más vendidas | `artesaniasMasVendidas(inventario, desde, hasta)` |
+| Auditoría de inventario | `auditoriaStock(inventario)` |
+
+Los reportes se generan por consola a partir de las recepciones, ventas y devoluciones registradas.
+
+## 7. Cómo ejecutar el ejercicio 5
+
+**Requisitos:**
+- JDK 25.
+- Apache NetBeans con soporte para Maven, o un entorno Java compatible.
+- Repositorio `Tr1-BDD` descargado.
+
+**Procedimiento:**
+
+1. Clonar el repositorio:
+
+   ```bash
+   git clone https://github.com/Mariaguerrer193/Tr1-BDD.git
+   ```
+
+2. Abrir el proyecto Maven `Tr1-BDD` en Apache NetBeans.
+3. Configurar JDK 25 como plataforma del proyecto.
+4. Buscar el paquete `com.mycompany.tr1.bdd.ejercicio5`.
+5. Abrir el archivo `Main.java`.
+6. Ejecutarlo con clic derecho → **Run File**, o mediante **Shift + F6**.
+7. Revisar los resultados en la ventana **Output**.
+
+El programa funciona por consola. Su clase `Main` ejecuta un escenario de demostración y genera automáticamente los reportes; no requiere un menú interactivo.
+
+**Primera ejecución:** si no existe el archivo de datos, se genera un inventario de ejemplo con recepciones, una venta y una devolución, y se guarda en `datos/ejercicio5.txt`.
+
+**Ejecuciones posteriores:** si el archivo existe, el sistema recupera la información almacenada y muestra el inventario, los movimientos y los cinco reportes.
+
+## 8. Ejemplo de funcionamiento
+
+Se registra al artesano Pedro, perteneciente a la comunidad de Peguche.
+
+Su producto es un poncho artesanal de tipo TEXTIL, con precio de venta de $100.
+
+Se registran dos recepciones:
+
+- Primera recepción: 12 unidades, hace 95 días.
+- Segunda recepción: 8 unidades, hace 5 días.
+
+El inventario inicial contiene 20 unidades.
+
+Posteriormente se realizan las siguientes operaciones:
+
+**Venta de tres ponchos:**
+
+- Total: 3 × $100 = $300.
+- Comisión de la tienda: $300 × 20 % = $60.
+- Pago al artesano: $300 − $60 = $240.
+
+**Devolución de dos ponchos al propietario:**
+
+- Cantidad devuelta: 2 unidades.
+- Stock final: 20 − 3 − 2 = 15 unidades.
+
+También se comprueba el rechazo de ventas con stock insuficiente y devoluciones a propietarios incorrectos.
+
+## 9. Ejemplo de salida de los reportes
+
+```text
+=== LIQUIDACION DE ARTESANOS ===
+Artesano: Pedro | Comunidad: Peguche
+Vendido: $300.00
+Comision: $60.00
+Pago: $240.00
+
+=== ARTESANIAS PARA DEVOLUCION ===
+Producto: Poncho artesanal
+Artesano: Pedro
+Dias: 95
+Unidades: 7
+
+=== COMUNIDADES CON MAS VENTAS ===
+Peguche | Ventas: $300.00
+
+=== ARTESANIAS MAS VENDIDAS ===
+Poncho artesanal | Unidades vendidas: 3
+
+=== AUDITORIA DE INVENTARIO ===
+Producto: Poncho artesanal
+Recibidas: 20
+Salidas: 5
+Esperado: 15
+Disponible: 15
+Estado: OK
+
+=== FIN DEL EJERCICIO 5 ===
+BUILD SUCCESS
+```
+
+## 10. Persistencia en archivos TXT
+
+El sistema utiliza el archivo:
+
+`datos/ejercicio5.txt`
+
+La clase `ArchivoInventario.java` implementa los métodos:
+
+- `guardar(inventario, ruta)`
+- `cargar(ruta)`
+
+El archivo almacena registros correspondientes a:
+
+- **A:** artesanos.
+- **P:** productos o artesanías.
+- **R:** recepciones.
+- **M:** movimientos de venta o devolución.
+
+Los campos se separan mediante el carácter `|`. Los nombres se codifican en Base64 para preservar caracteres especiales y evitar problemas con los separadores.
+
+Al recuperar la información, el programa reconstruye los objetos y vuelve a registrar las operaciones para comprobar la consistencia de las existencias.
+
+El guardado se realiza explícitamente mediante `ArchivoInventario.guardar()`. En la demostración de `Main`, el archivo se crea cuando todavía no existe.
+
+Esta implementación permite que el inventario del ejemplo se conserve entre ejecuciones del programa.
+
+## 11. Pruebas y validaciones
+
+Se implementó la clase independiente `PruebasEjercicio5.java`, encargada de ejecutar automáticamente 20 casos de prueba.
+
+**Cómo ejecutar las pruebas:**
+
+1. Abrir el paquete `ejercicio5.servicio`.
+2. Seleccionar `PruebasEjercicio5.java`.
+3. Hacer clic derecho → **Run File** o presionar **Shift + F6**.
+4. Revisar los resultados en la consola de NetBeans.
+
+**Casos de prueba implementados:**
+
+1. Stock inicial de 20 unidades.
+2. Venta textil y comisión del 20 %.
+3. Venta y devolución que dejan 15 unidades.
+4. Rechazo de venta sin suficiente stock.
+5. Rechazo de devolución excesiva.
+6. Rechazo de devolución a otro artesano.
+7. Rechazo de movimiento duplicado.
+8. Rechazo de recepción duplicada.
+9. Rechazo de artesanía duplicada.
+10. Rechazo de cantidades iguales a cero o negativas.
+11. Detección de recepciones que superan los 90 días.
+12. Prohibición de eliminar artesanos con productos.
+13. Prohibición de eliminar artesanías con recepciones.
+14. Prohibición de eliminar artesanías con movimientos.
+15. Eliminación de registros sin dependencias.
+16. Cálculo de comisión del 25 % para tallas de madera.
+17. Guardado y recuperación mediante archivo TXT.
+18. Rechazo de recepciones con fecha futura.
+19. Rechazo de precios negativos.
+20. Rechazo de artesanos duplicados.
+
+**Resultados obtenidos:**
+
+```text
+==========================================
+          RESUMEN DE PRUEBAS
+==========================================
+Pruebas aprobadas: 20
+Pruebas fallidas: 0
+Total de pruebas: 20
+RESULTADO: TODAS LAS PRUEBAS PASARON
+
+BUILD SUCCESS
+```
+
+Las pruebas comprueban que las operaciones válidas producen los resultados esperados y que determinadas operaciones inválidas son rechazadas sin alterar indebidamente las existencias.
+
+## 12. Decisiones de diseño
+
+**Programación orientada a objetos:** se separaron las clases de datos, la lógica del negocio, los reportes y el almacenamiento en archivos.
+
+**Relación entre artesanos y artesanías:** cada producto mantiene una referencia a su propietario, lo cual facilita las liquidaciones y validaciones de devolución.
+
+**Validación antes de modificar inventario:** las ventas y devoluciones verifican la cantidad disponible antes de descontar unidades.
+
+**Cálculos monetarios:** los movimientos utilizan `BigDecimal` para calcular los valores de venta, comisión y pago.
+
+**Control de antigüedad:** se utiliza `LocalDate` y `ChronoUnit.DAYS` para identificar recepciones que superan los 90 días.
+
+**Auditoría de inventario:** se compara el total de unidades recibidas menos las salidas registradas con las unidades disponibles en el sistema.
+
+**Persistencia en archivos planos:** se utiliza un archivo TXT estructurado, evitando depender de una base de datos externa.
+
+**Pruebas independientes:** la clase `PruebasEjercicio5` permite comprobar las reglas del sistema sin alterar el archivo principal de datos.
+
+## 13. Autor
+
+Jonathan Sánchez — Ingeniería de Software, Universidad Técnica del Norte (UTN).
+
+Desarrollo del Ejercicio 5: Tienda de Artesanías de Otavalo.
+
+Implementación de modelos, gestión de inventario, ventas, devoluciones, comisiones, reportes, almacenamiento en TXT y 20 pruebas automatizadas.
