@@ -11,10 +11,6 @@ public class Main {
     private static final Scanner sc = new Scanner(System.in);
     private static final TransporteServicio transporte =
             new TransporteServicio();
-    
-    
-    
-   
 
     public static void main(String[] args) {
 
@@ -31,6 +27,7 @@ public class Main {
             System.out.println("7. Listar pasajeros");
             System.out.println("8. Listar viajes");
             System.out.println("9. Listar boletos");
+            System.out.println("10. Eliminar viaje");
             System.out.println("0. Salir");
             System.out.print("Seleccione una opcion: ");
 
@@ -46,6 +43,7 @@ public class Main {
                 case 7 -> listarPasajeros();
                 case 8 -> listarViajes();
                 case 9 -> listarBoletos();
+                case 10 -> eliminarViaje();
                 case 0 -> System.out.println("Saliendo ...");
                 default -> System.out.println("Opcion invalida.");
             }
@@ -200,6 +198,19 @@ public class Main {
 
         double precio = viaje.getTarifaBase();
 
+        if (viaje.getTipo() == TipoViaje.CON_PARADAS) {
+            precio = precio * 0.85;
+        }
+
+        if (pasajero.getTipo() == TipoPasajero.TERCERA_EDAD
+                || pasajero.getTipo() == TipoPasajero.DISCAPACIDAD) {
+            precio = precio * 0.50;
+        }
+
+        precio = Math.round(precio * 100.0) / 100.0;
+
+        System.out.println("Precio final del boleto: $" + precio);
+
         Boleto boleto = transporte.getBoletoServicio().venderBoleto(
                 id, viaje, pasajero, asiento, precio
         );
@@ -219,6 +230,16 @@ public class Main {
         if (anulado) {
             System.out.println("Boleto anulado correctamente.");
         }
+    }
+
+    private static void eliminarViaje() {
+
+        listarViajes();
+
+        System.out.print("Ingrese el ID del viaje que desea eliminar: ");
+        String id = sc.nextLine();
+
+        transporte.getViajeServicio().eliminarViaje(id);
     }
 
     private static void listarRutas() {
@@ -254,6 +275,7 @@ public class Main {
             System.out.println(
                     b.getId() + " - " + b.getPasajero().getNombre()
                     + " - Asiento: " + b.getNumeroAsiento()
+                    + " - Precio: $" + b.getPrecioPagado()
                     + " - Estado: " + b.getEstado()
             );
         }

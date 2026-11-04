@@ -27,7 +27,7 @@ import java.util.List;
 
 public class ViajeServicio {
 
-    private List<Viaje> viajes;
+     private List<Viaje> viajes;
     private ArchivoServicio archivo;
     private RutaServicio rutaServicio;
 
@@ -43,8 +43,7 @@ public class ViajeServicio {
 
     public void registrarViaje(Viaje viaje) {
 
-        
-                if (viaje == null || viaje.getRuta() == null) {
+        if (viaje == null || viaje.getRuta() == null) {
             System.out.println("El viaje o su ruta no son válidos.");
             return;
         }
@@ -53,6 +52,7 @@ public class ViajeServicio {
             System.out.println("La capacidad y la tarifa deben ser mayores que cero.");
             return;
         }
+
         if (buscarViaje(viaje.getId()) != null) {
             System.out.println("El viaje ya existe.");
             return;
@@ -96,6 +96,67 @@ public class ViajeServicio {
         }
 
         return viaje.getCapacidad() - vendidos;
+    }
+
+    // Eliminar un viaje si no tiene boletos asociados
+    public boolean eliminarViaje(String id) {
+
+        Viaje viaje = buscarViaje(id);
+
+        if (viaje == null) {
+            System.out.println("Viaje no encontrado.");
+            return false;
+        }
+
+        // Proteger los boletos vendidos y el historial de anulaciones
+        if (!viaje.getBoletos().isEmpty()) {
+
+            boolean tieneVendidos = false;
+
+            for (Boleto boleto : viaje.getBoletos()) {
+                if (boleto.getEstado() == EstadoBoleto.VENDIDO) {
+                    tieneVendidos = true;
+                    break;
+                }
+            }
+
+            if (tieneVendidos) {
+                System.out.println(
+                        "No se puede eliminar el viaje porque tiene boletos vendidos."
+                );
+            } else {
+                System.out.println(
+                        "No se puede eliminar el viaje porque tiene boletos asociados."
+                );
+            }
+
+            return false;
+        }
+
+        viajes.remove(viaje);
+
+        actualizarArchivoViajes();
+
+        System.out.println("Viaje eliminado correctamente.");
+
+        return true;
+    }
+
+    private void actualizarArchivoViajes() {
+
+        StringBuilder contenido = new StringBuilder();
+
+        for (Viaje viaje : viajes) {
+
+            contenido.append(viaje.getId()).append("|")
+                    .append(viaje.getRuta().getId()).append("|")
+                    .append(viaje.getFechaHoraSalida()).append("|")
+                    .append(viaje.getCapacidad()).append("|")
+                    .append(viaje.getTarifaBase()).append("|")
+                    .append(viaje.getTipo()).append("\n");
+        }
+
+        archivo.sobrescribir("viajes.txt", contenido.toString());
     }
 
     private void cargarViajes() {
@@ -143,7 +204,7 @@ public class ViajeServicio {
                     System.out.println(
                             "Error al cargar un viaje: " + linea
                     );
-}
+                }
             }
         }
     }
