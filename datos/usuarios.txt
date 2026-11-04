@@ -1,3 +1,4 @@
-1004567890|Maria Guerrero|0|0.0
+1004567890|Maria Guerrero|0|1.0
 1001234567|Carlos Perez|0|0.0
 1009876543|Ana Lopez|0|0.0
+132|312|0|0.0
