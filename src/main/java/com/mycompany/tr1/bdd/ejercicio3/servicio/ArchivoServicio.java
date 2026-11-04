@@ -26,8 +26,8 @@ public class ArchivoServicio {
     public ArchivoServicio() {
         File directorio = new File(carpeta);
 
-        if (!directorio.exists()) {
-            directorio.mkdirs();
+        if (!directorio.exists() && !directorio.mkdirs()) {
+            System.out.println("No se pudo crear la carpeta de datos.");
         }
     }
 
