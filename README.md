@@ -552,34 +552,38 @@ EJERCICIO 3:
 
 //***************************************************************************************************************************************************************
 
+# EJERCICIO 4: Sistema de Cafetería UTN
 
+Sistema en Java para controlar el stock de ingredientes de la cafetería de la Universidad Técnica del Norte (UTN), registrar abastecimientos y ventas, y generar reportes para el administrador.
 
+**Código en:** `src/main/java/com/mycompany/tr1/bdd/ejercicio4/`  
+**Clase principal:** `ejercicio4/Main.java`
 
-EJERCICIO 4: Sistema de Cafetería UTN
+## 1. Enunciado resumido
 
-Sistema en Java para controlar el stock de ingredientes de la cafetería de la UTN, registrar abastecimientos y ventas, y generar reportes para el administrador.
+La cafetería de la UTN vende platos preparados y bebidas embotelladas.
 
-Código en: src/main/java/com/mycompany/tr1/bdd/ejercicio4/ Clase principal: ejercicio4/Main.java
+- Cada plato se prepara según una receta que especifica los ingredientes y las cantidades necesarias.
+- Los ingredientes se miden en kilogramos o litros y tienen un stock mínimo.
+- Se registra cada abastecimiento y cada venta.
+- El administrador necesita reportes de costos, precios, márgenes, ingredientes por comprar, platos preparables, platos más vendidos y auditoría del stock.
 
-1. Enunciado resumido
+## 2. Reglas de negocio
 
-La cafetería vende platos preparados y bebidas embotelladas.
+| N.º | Regla |
+|---|---|
+| 1 | El costo de un plato es la suma de `costoPorUnidad × cantidad` de cada ingrediente de su receta. |
+| 2 | El precio de venta de un plato es el doble de su costo. |
+| 3 | El margen de un plato es el precio menos el costo; por la regla anterior, es igual al costo. |
+| 4 | Las bebidas se venden a su precio base más el IVA del 15 %. Su stock se cuenta en unidades. |
+| 5 | Al vender platos se descuentan los ingredientes de la receta multiplicados por la cantidad vendida. |
+| 6 | Si falta algún ingrediente o stock de bebida, se rechaza la venta completa sin modificar el inventario. |
+| 7 | No se puede eliminar un ingrediente que forma parte de alguna receta. |
+| 8 | Cada abastecimiento y venta generan movimientos de stock para su auditoría. |
 
-Cada plato se prepara según una receta (ingredientes y cantidad de cada uno).
-Los ingredientes se miden en kilogramos o litros y tienen un stock mínimo.
-Se registra cada abastecimiento y cada venta.
-El administrador necesita reportes de costos, compras, producción, ventas y auditoría de stock.
-2. Reglas de negocio
-#	Regla
-1	El costo de un plato es la suma de costoPorUnidad × cantidad de cada ingrediente de su receta.
-2	El precio de venta de un plato es el doble de su costo.
-3	El margen de un plato es precio menos costo (por la regla 2, siempre es igual al costo).
-4	Las bebidas se venden a su precio base más el IVA del 15 %. El stock de bebidas se cuenta en unidades.
-5	Al vender platos se descuentan todos los ingredientes de la receta, multiplicados por la cantidad vendida.
-6	Si falta cualquier ingrediente o stock de bebida, la venta completa se rechaza y no se modifica el stock.
-7	No se puede eliminar un ingrediente que forma parte de alguna receta.
-8	Cada abastecimiento y cada venta generan movimientos de stock para la auditoría.
-3. Estructura de carpetas
+## 3. Estructura de carpetas
+
+```text
 ejercicio4/
 ├── Main.java                 (pruebas automáticas del sistema)
 ├── modelo/
@@ -597,82 +601,63 @@ ejercicio4/
 │   └── TipoMovimiento.java   (enum: ABASTECIMIENTO, VENTA)
 └── servicio/
     └── Cafeteria.java        (lógica de negocio y reportes)
-4. Diagrama de clases
-«abstract»
-Producto
--int id
--String nombre
-Plato
--Receta receta
-+getCosto() : double
-+getPrecioVenta() : double
-+getMargen() : double
-Bebida
--double precioBase
--int stockUnidades
-+getPrecioConIva() : double
-Receta
--int id
--List<ItemReceta> items
-ItemReceta
--Ingrediente ingrediente
--double cantidad
-Ingrediente
--int id
--String nombre
--UnidadMedida unidadMedida
--double stockActual
--double stockMinimo
--double costoPorUnidad
-Abastecimiento
--int id
--LocalDateTime fecha
--double cantidad
--double costoUnitario
-Venta
--int id
--LocalDateTime fecha
--List<DetalleVenta> detalles
-+getTotal() : double
-DetalleVenta
--int cantidad
--double precioUnitario
-MovimientoStock
--int id
--LocalDateTime fecha
--TipoMovimiento tipo
--double cantidad
--double stockAnterior
--double stockResultante
--int referencia
-Cafeteria
--List<Ingrediente> ingredientes
--List<Plato> platos
--List<Bebida> bebidas
--List<Venta> ventas
--List<Abastecimiento> abastecimientos
--List<MovimientoStock> movimientos
+```
 
-Plato y Bebida heredan de Producto. Gracias a eso, DetalleVenta guarda un Producto y una misma venta puede mezclar platos y bebidas.
+> <img width="417" height="568" alt="image" src="https://github.com/user-attachments/assets/3d17c478-58bd-43a6-bdf4-6ab7de219f5c" />
+  
+> *Figura 1. Organización de paquetes y clases del Sistema de Cafetería UTN.*
 
-5. Operaciones de la clase Cafeteria
-Método	Qué hace
-agregarIngrediente, agregarPlato, agregarBebida	Registra elementos en el sistema.
-abastecer(ingrediente, cantidad, costoUnitario)	Suma stock, actualiza el costo del ingrediente y registra el abastecimiento y el movimiento.
-vender(Map<Producto, Integer> pedido)	Valida todo el pedido y, solo si es posible, descuenta stock y registra la venta.
-eliminarIngrediente(ingrediente)	Elimina el ingrediente, salvo que forme parte de una receta.
-ingredienteEnUso(ingrediente)	Indica si un ingrediente está en alguna receta.
-unidadesPreparables(plato)	Cuántas unidades de un plato permite preparar el stock actual.
-listaDeCompras()	Ingredientes por debajo del stock mínimo.
-6. Reportes para el administrador
-Reporte	Método
-Costo, precio y margen de cada plato	reporteCostosPlatos()
-Ingredientes bajo el stock mínimo (lista de compras)	reporteListaDeCompras()
-Platos que se pueden preparar y cuántas unidades	reportePlatosPreparables()
-Platos más vendidos en un período	reportePlatosMasVendidos(desde, hasta, limite)
-Auditoría del stock de ingredientes	auditoriaStock()
-7. Ejemplo de uso
-java
+## 4. Diagrama de clases
+
+El diseño utiliza la clase abstracta `Producto`, de la que heredan `Plato` y `Bebida`. `Plato` se relaciona con `Receta`, que a su vez contiene elementos `ItemReceta` asociados a `Ingrediente`. La clase `Cafeteria` administra los ingredientes, productos, ventas, abastecimientos y movimientos de stock.
+
+Las clases descritas en el README original son:
+
+| Clase | Atributos y métodos destacados |
+|---|---|
+| `Producto` (abstracta) | `id`, `nombre` |
+| `Plato` | `receta`; `getCosto()`, `getPrecioVenta()`, `getMargen()` |
+| `Bebida` | `precioBase`, `stockUnidades`; `getPrecioConIva()` |
+| `Receta` | `id`, `List<ItemReceta> items` |
+| `ItemReceta` | `ingrediente`, `cantidad` |
+| `Ingrediente` | `id`, `nombre`, `unidadMedida`, `stockActual`, `stockMinimo`, `costoPorUnidad` |
+| `Abastecimiento` | `id`, `fecha`, `cantidad`, `costoUnitario` |
+| `Venta` | `id`, `fecha`, `List<DetalleVenta> detalles`; `getTotal()` |
+| `DetalleVenta` | `cantidad`, `precioUnitario` |
+| `MovimientoStock` | `id`, `fecha`, `tipo`, `cantidad`, `stockAnterior`, `stockResultante`, `referencia` |
+| `Cafeteria` | Listas de ingredientes, platos, bebidas, ventas, abastecimientos y movimientos |
+
+**Relación principal:** `Plato` y `Bebida` heredan de `Producto`. Gracias a ello, un detalle de venta puede referirse a un producto y una venta puede incluir platos y bebidas.
+
+>  <img width="842" height="522" alt="image" src="https://github.com/user-attachments/assets/d9937cdf-dc36-40e7-8c99-f10c50ae69f4" />
+ 
+> *Figura 2. Diagrama de clases del Sistema de Cafetería UTN.*
+
+## 5. Operaciones de la clase `Cafeteria`
+
+| Método | ¿Qué hace? |
+|---|---|
+| `agregarIngrediente`, `agregarPlato`, `agregarBebida` | Registra elementos en el sistema. |
+| `abastecer(ingrediente, cantidad, costoUnitario)` | Suma stock, actualiza el costo unitario y registra el abastecimiento y su movimiento. |
+| `vender(Map<Producto, Integer> pedido)` | Valida el pedido completo; si se puede realizar, descuenta el stock y registra la venta. |
+| `eliminarIngrediente(ingrediente)` | Elimina un ingrediente solo si no forma parte de una receta. |
+| `ingredienteEnUso(ingrediente)` | Comprueba si un ingrediente aparece en una receta. |
+| `unidadesPreparables(plato)` | Calcula cuántas unidades de un plato permite preparar el stock actual. |
+| `listaDeCompras()` | Identifica ingredientes por debajo de su stock mínimo. |
+
+## 6. Reportes para el administrador
+
+| Reporte | Método |
+|---|---|
+| Costo, precio y margen de cada plato | `reporteCostosPlatos()` |
+| Ingredientes por debajo del stock mínimo (lista de compras) | `reporteListaDeCompras()` |
+| Platos que pueden prepararse y cuántas unidades | `reportePlatosPreparables()` |
+| Platos más vendidos en un período | `reportePlatosMasVendidos(desde, hasta, limite)` |
+| Auditoría del stock de ingredientes | `auditoriaStock()` |
+
+## 7. Ejemplo de uso
+
+```java
 Cafeteria cafeteria = new Cafeteria();
 
 // Ingredientes y abastecimiento
@@ -699,24 +684,65 @@ Map<Producto, Integer> pedido = new LinkedHashMap<>();
 pedido.put(arrozConPollo, 2);
 pedido.put(agua, 3);
 Venta venta = cafeteria.vender(pedido);   // total: 9.45
+```
 
-Cálculo del ejemplo:
+**Cálculo del ejemplo:**
 
-Costo del plato: 0.2 × 1.50 + 0.3 × 4.00 = 1.50, precio de venta 3.00.
-Agua con IVA: 1.00 × 1.15 = 1.15.
-Total: 2 × 3.00 + 3 × 1.15 = 9.45.
-Stock final: arroz 9.6 kg, pollo 4.4 kg, agua 17 unidades.
-8. Ejemplo de salida de los reportes
+- Costo del plato: `0.2 × 1.50 + 0.3 × 4.00 = $1.50`.
+- Precio de venta del plato: `$3.00`.
+- Precio del agua con IVA: `1.00 × 1.15 = $1.15`.
+- Total de la venta: `2 × 3.00 + 3 × 1.15 = $9.45`.
+- Stock final: arroz **9.6 kg**, pollo **4.4 kg** y agua **17 unidades**.
+
+
+> <img width="840" height="186" alt="image" src="https://github.com/user-attachments/assets/6b853d01-bfb7-4f62-a068-5bdf53718e0a" />
+  
+> *Figura 3. Ejemplo de registro y venta de productos en la cafetería.*
+
+## 8. Ejemplo de salida de los reportes
+
+### 8.1. Costo, precio y margen de los platos
+
+```text
 === COSTO, PRECIO Y MARGEN POR PLATO ===
 Arroz con pollo      Costo: 1.50 | Precio: 3.00 | Margen: 1.50
 Pollo frito          Costo: 1.90 | Precio: 3.80 | Margen: 1.90
+```
+ 
+> <img width="544" height="98" alt="image" src="https://github.com/user-attachments/assets/3ccfafc0-2476-4363-be01-8794aa5182ed" />
+
+> * *Figura 4. Reporte de costos, precios de venta y márgenes.*
+
+### 8.2. Lista de compras y platos preparables
+
+```text
 === LISTA DE COMPRAS ===
 Aceite (L) | Stock: 0.50 | Mínimo: 2.00 | Falta: 1.50
+
 === PLATOS QUE SE PUEDEN PREPARAR ===
 Arroz con pollo: 14 unidades
 Pollo frito: 5 unidades
+```
+
+> <img width="426" height="85" alt="image" src="https://github.com/user-attachments/assets/8e388b98-4bb9-45ac-bf84-19f1e9d4a309" />
+  
+> *Figura 5. Disponibilidad de ingredientes y capacidad de preparación.*
+
+### 8.3. Platos más vendidos
+
+```text
 === PLATOS MÁS VENDIDOS ===
 1. Arroz con pollo - 2 unidades
+```
+
+>   <img width="286" height="41" alt="image" src="https://github.com/user-attachments/assets/5c103047-35c7-485b-82d0-5b833ac7f1a7" />
+
+
+> * *Figura 6. Reporte de platos más vendidos.*
+
+### 8.4. Auditoría de stock
+
+```text
 === AUDITORÍA DE STOCK ===
 #1 2026-11-02 | Arroz | ABASTECIMIENTO +10.00 | 0.00 -> 10.00 | ref: 1
 #2 2026-11-02 | Pollo | ABASTECIMIENTO +5.00 | 0.00 -> 5.00 | ref: 2
@@ -727,34 +753,49 @@ Pollo frito: 5 unidades
 Arroz: OK
 Pollo: OK
 Aceite: OK
+```
 
-Los decimales pueden salir con coma según la configuración regional del equipo.
+> <img width="548" height="104" alt="image" src="https://github.com/user-attachments/assets/03cdbb91-26cc-4c35-ae8b-b31125908db5" />
 
-9. Decisiones de diseño
-La venta valida antes de modificar. vender primero suma lo que requiere todo el pedido y revisa el stock; solo si alcanza, descuenta. Así una venta rechazada nunca deja el stock a medias.
-Ingredientes compartidos entre platos. Si dos platos del mismo pedido usan el mismo ingrediente, se suma el consumo total antes de validar. Cada plato podría alcanzar por separado y aun así el pedido completo no.
-Costo del ingrediente. Al abastecer, el costoPorUnidad del ingrediente se actualiza con el último costo unitario.
-Auditoría verificable. Cada movimiento guarda el stock anterior y el resultante; el reporte compara el último movimiento de cada ingrediente con su stock actual para detectar cambios no registrados.
-Herencia de Producto. Permite que una venta mezcle platos y bebidas con un solo tipo de detalle.
-10. Pruebas
+> * *Figura 7. Auditoría de movimientos y existencias de ingredientes.*
 
-Main ejecuta 20 verificaciones automáticas y marca cada una con [OK] o [FALLO]:
+**Nota:** Los decimales pueden mostrarse con coma en lugar de punto según la configuración regional del equipo.
 
-Cálculo de costo, precio, margen e IVA.
-Venta válida con descuento de stock.
-Rechazo por ingredientes insuficientes, por ingrediente compartido entre platos y por falta de stock de bebida.
-Eliminación permitida y bloqueada de ingredientes.
-Lista de compras, platos preparables y movimientos de auditoría.
+## 9. Decisiones de diseño
 
-Al final imprime los reportes y el resumen:
+- **Validar antes de modificar:** `vender()` calcula primero lo que necesita el pedido completo y revisa la disponibilidad. Si falta stock, no modifica el inventario.
+- **Ingredientes compartidos:** cuando varios platos del mismo pedido usan un mismo ingrediente, se suma el consumo total antes de validar la venta.
+- **Actualización de costos:** al abastecer un ingrediente, su `costoPorUnidad` se actualiza con el último costo unitario.
+- **Auditoría verificable:** cada movimiento registra el stock anterior y el resultante; el reporte comprueba si el stock actual coincide con los movimientos.
+- **Herencia:** `Plato` y `Bebida` heredan de `Producto`, permitiendo que una venta incluya diferentes tipos de productos.
 
+## 10. Pruebas
+
+
+Las pruebas contemplan:
+
+- Cálculo del costo, precio de venta, margen e IVA.
+- Venta válida y descuento de stock.
+- Rechazo por ingredientes insuficientes, ingredientes compartidos y falta de stock de bebida.
+- Eliminación permitida y bloqueada de ingredientes.
+- Lista de compras, platos preparables y movimientos de auditoría.
+
+**Resultado resumido indicado en el README original:**
+
+```text
 Pruebas OK: 20 | Fallidas: 0
-11. Autor
+```
 
-Juan Diego - Ingeniería de Software, Universidad Técnica del Norte (UTN).
+> <img width="253" height="54" alt="image" src="https://github.com/user-attachments/assets/206b011a-e475-4a88-84dc-d401d0e11c7d" />
+
+> * *Figura 8. Resultados de las pruebas automáticas del Ejercicio 4.*
 
 
+## 11. Autor
 
+**Juan Diego** — Ingeniería de Software, Universidad Técnica del Norte (UTN).
+
+---
 
 //***************************************************************************************************************************************************************
 
