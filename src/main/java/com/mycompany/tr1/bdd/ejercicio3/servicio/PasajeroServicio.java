@@ -28,10 +28,33 @@ public class PasajeroServicio {
 
     public void registrarPasajero(Pasajero pasajero) {
 
-        if (buscarPasajero(pasajero.getCedula()) != null) {
-            System.out.println("El pasajero ya está registrado.");
-            return;
-        }
+        
+    if (pasajero == null) {
+        System.out.println("El pasajero no puede ser nulo.");
+        return;
+    }
+
+    if (pasajero.getCedula() == null
+            || pasajero.getCedula().isBlank()) {
+        System.out.println("La cédula es obligatoria.");
+        return;
+    }
+
+    if (pasajero.getNombre() == null
+            || pasajero.getNombre().isBlank()) {
+        System.out.println("El nombre es obligatorio.");
+        return;
+    }
+
+    if (pasajero.getTipo() == null) {
+        System.out.println("Debe seleccionar un tipo de pasajero.");
+        return;
+    }
+
+    if (buscarPasajero(pasajero.getCedula()) != null) {
+        System.out.println("El pasajero ya está registrado.");
+        return;
+    }
 
         pasajeros.add(pasajero);
 

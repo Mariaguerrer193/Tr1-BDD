@@ -214,11 +214,11 @@ public class BoletoServicio {
                         viaje.agregarBoleto(boleto);
                     }
 
-                } catch (IllegalArgumentException e) {
-                    System.out.println(
-                            "Error al cargar un boleto: " + linea
-                    );
-                }
+                } catch (IllegalArgumentException | java.time.DateTimeException e) {
+    System.out.println(
+            "Error al cargar un boleto: " + linea
+    );
+}
             }
         }
     }

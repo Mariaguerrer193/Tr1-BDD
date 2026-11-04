@@ -43,6 +43,16 @@ public class ViajeServicio {
 
     public void registrarViaje(Viaje viaje) {
 
+        
+                if (viaje == null || viaje.getRuta() == null) {
+            System.out.println("El viaje o su ruta no son válidos.");
+            return;
+        }
+
+        if (viaje.getCapacidad() <= 0 || viaje.getTarifaBase() <= 0) {
+            System.out.println("La capacidad y la tarifa deben ser mayores que cero.");
+            return;
+        }
         if (buscarViaje(viaje.getId()) != null) {
             System.out.println("El viaje ya existe.");
             return;
@@ -129,11 +139,11 @@ public class ViajeServicio {
                         viajes.add(viaje);
                     }
 
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | java.time.DateTimeException e) {
                     System.out.println(
                             "Error al cargar un viaje: " + linea
                     );
-                }
+}
             }
         }
     }
