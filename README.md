@@ -508,6 +508,239 @@ Finished at: 2026-11-04T00:00:42-05:00
 EJERCICIO 3: 
 
 
+# EJERCICIO 3: Sistema de Transporte y Venta de Boletos
+
+Sistema desarrollado en Java para administrar rutas, pasajeros, viajes y boletos de una empresa de transporte. Permite registrar información, consultar viajes disponibles, vender y anular boletos, controlar los asientos y conservar los datos mediante archivos de texto.
+
+**Código en:** `src/main/java/com/mycompany/tr1/bdd/ejercicio3/`  
+**Clase principal:** `ejercicio3/Main.java`  
+**Tecnología:** Java, Maven, programación orientada a objetos y persistencia mediante archivos de texto `.txt`.
+
+## 1. Enunciado resumido
+
+El sistema permite gestionar las operaciones principales de una empresa de transporte terrestre.
+
+Se registran las rutas con sus respectivos lugares de origen y destino, los pasajeros que utilizan el servicio y los viajes programados. Cada viaje está asociado a una ruta y contiene información sobre la fecha y hora de salida, capacidad, tarifa base y tipo de recorrido.
+
+Los pasajeros pueden adquirir boletos para los viajes disponibles, seleccionando un número de asiento. También se permite anular boletos, siempre que se cumplan las validaciones correspondientes.
+
+La información de rutas, pasajeros, viajes y boletos se almacena en archivos de texto para recuperarla cuando el programa se ejecute nuevamente.
+
+## 2. Reglas de negocio
+
+| N.º | Regla |
+|---|---|
+| 1 | Cada ruta tiene un identificador único, un origen y un destino. |
+| 2 | Cada pasajero se identifica mediante una cédula. |
+| 3 | Los pasajeros se clasifican según su tipo: GENERAL, TERCERA_EDAD o DISCAPACIDAD. |
+| 4 | Cada viaje debe estar asociado a una ruta previamente registrada. |
+| 5 | Cada viaje posee un identificador, fecha y hora de salida, capacidad, tarifa base y tipo de recorrido. |
+| 6 | Los viajes pueden ser de tipo DIRECTO o CON_PARADAS. |
+| 7 | No se debe superar la capacidad máxima establecida para un viaje. |
+| 8 | Cada boleto pertenece a un viaje y a un pasajero registrado. |
+| 9 | Cada boleto debe tener un identificador único y un número de asiento. |
+| 10 | No se puede asignar el mismo asiento a dos boletos activos del mismo viaje. |
+| 11 | La venta de un boleto debe validar la disponibilidad de asientos. |
+| 12 | Cada boleto registra su fecha de compra, precio pagado y estado. |
+| 13 | Los boletos pueden tener estado VENDIDO o ANULADO. |
+| 14 | No se permite anular un boleto que ya se encuentre anulado. |
+| 15 | Al anular un boleto, el asiento vuelve a estar disponible para el viaje. |
+| 16 | La información registrada se conserva en archivos de texto para recuperarse en nuevas ejecuciones. |
+
+## 3. Estructura de carpetas
+
+```text
+ejercicio3/
+├── Main.java                    (menú principal e interacción con el usuario)
+├── modelo/
+│   ├── Ruta.java                (origen, destino e identificador)
+│   ├── Pasajero.java            (datos del pasajero)
+│   ├── Viaje.java               (ruta, horario, capacidad y tarifa)
+│   ├── Boleto.java              (información de la compra y asiento)
+│   ├── TipoPasajero.java        (enum: GENERAL, TERCERA_EDAD, DISCAPACIDAD)
+│   ├── TipoViaje.java           (enum: DIRECTO, CON_PARADAS)
+│   └── EstadoBoleto.java        (enum: VENDIDO, ANULADO)
+└── servicio/
+    ├── ArchivoServicio.java     (lectura y escritura de archivos TXT)
+    ├── RutaServicio.java        (gestión de rutas)
+    ├── PasajeroServicio.java    (gestión de pasajeros)
+    ├── ViajeServicio.java       (gestión de viajes y asientos)
+    ├── BoletoServicio.java      (venta, anulación y consulta de boletos)
+    └── TransporteServicio.java  (coordinación de los servicios)
+```
+
+## 4. Diagrama de clases
+
+El sistema está organizado mediante clases de modelo y clases de servicio, separando los datos de las operaciones del negocio.
+
+**Clases principales del modelo:**
+
+| Clase | Responsabilidad |
+|---|---|
+| `Ruta` | Representa el origen y destino de un recorrido. |
+| `Pasajero` | Almacena la cédula, nombre y tipo de pasajero. |
+| `Viaje` | Representa un recorrido programado, asociado a una ruta y con una capacidad determinada. |
+| `Boleto` | Registra la compra de un asiento para un pasajero en un viaje. |
+| `TipoPasajero` | Define las categorías de pasajeros. |
+| `TipoViaje` | Define los tipos de recorrido disponibles. |
+| `EstadoBoleto` | Identifica si un boleto está vendido o anulado. |
+
+**Relaciones principales:**
+
+- Una `Ruta` puede estar asociada a varios `Viaje`.
+- Un `Viaje` puede tener varios `Boleto`.
+- Un `Pasajero` puede adquirir varios `Boleto`.
+- Cada `Boleto` pertenece a un único `Viaje` y a un único `Pasajero`.
+- `Viaje` utiliza `TipoViaje` y `Boleto` utiliza `EstadoBoleto`.
+
+**Clases de servicio:**
+
+- `RutaServicio`, `PasajeroServicio`, `ViajeServicio` y `BoletoServicio` administran las operaciones correspondientes a cada entidad.
+- `ArchivoServicio` centraliza la lectura y escritura de los archivos.
+- `TransporteServicio` coordina la creación y conexión de los servicios.
+- `Main` presenta el menú y permite interactuar con el sistema.
+
+> [Aquí va la imagen del diagrama de clases del Ejercicio 3.]
+
+## 5. Operaciones principales
+
+El sistema dispone de un menú interactivo para realizar las siguientes operaciones:
+
+| Opción | Operación | Descripción |
+|---|---|---|
+| 1 | Registrar ruta | Registra el origen y destino de una nueva ruta. |
+| 2 | Registrar pasajero | Guarda los datos y el tipo de un pasajero. |
+| 3 | Registrar viaje | Programa un viaje asociado a una ruta existente. |
+| 4 | Vender boleto | Registra la compra de un boleto y asigna un asiento disponible. |
+| 5 | Anular boleto | Cambia el estado del boleto a ANULADO. |
+| 6 | Listar rutas | Muestra las rutas registradas. |
+| 7 | Listar pasajeros | Muestra los pasajeros registrados. |
+| 8 | Listar viajes | Presenta los viajes y sus datos principales. |
+| 9 | Listar boletos | Muestra los boletos registrados y sus estados. |
+| 0 | Salir | Finaliza la ejecución del programa. |
+
+## 6. Responsabilidades de las clases de servicio
+
+| Clase | Responsabilidad |
+|---|---|
+| `ArchivoServicio` | Lee, guarda y sobrescribe la información de los archivos de texto. |
+| `RutaServicio` | Registra, busca y lista las rutas disponibles. |
+| `PasajeroServicio` | Registra, busca y lista los pasajeros. |
+| `ViajeServicio` | Registra y consulta viajes, además de calcular los asientos disponibles. |
+| `BoletoServicio` | Gestiona la venta, búsqueda, anulación y consulta de boletos. |
+| `TransporteServicio` | Inicializa y conecta los servicios necesarios para el funcionamiento del sistema. |
+
+## 7. Ejemplo de funcionamiento
+
+Para demostrar el funcionamiento del sistema, se puede utilizar el siguiente escenario:
+
+**Registro de una ruta:**
+
+- ID: 1
+- Origen: Quito
+- Destino: Ibarra
+
+**Registro de un pasajero:**
+
+- Cédula: 1001234567
+- Nombre: Juan Perez
+- Tipo: GENERAL
+
+**Registro de un viaje:**
+
+- ID: V001
+- Ruta: Quito - Ibarra
+- Fecha y hora: 10 de noviembre de 2026, 08:00
+- Capacidad: 40 asientos
+- Tarifa base: $5.00
+- Tipo: DIRECTO
+
+**Venta de un boleto:**
+
+- ID del boleto: B001
+- Viaje: V001
+- Pasajero: Juan Perez
+- Asiento: 1
+- Estado inicial: VENDIDO
+
+Posteriormente, se puede anular el boleto B001. Al realizar esta operación, su estado cambia a ANULADO y el asiento vuelve a estar disponible.
+
+## 8. Persistencia en archivos de texto
+
+El sistema utiliza archivos de texto para conservar la información registrada.
+
+Los archivos utilizados son:
+
+```text
+datos/
+├── rutas.txt
+├── pasajeros.txt
+├── viajes.txt
+└── boletos.txt
+```
+
+Cada archivo almacena los datos correspondientes a su entidad mediante campos separados por el carácter `|`.
+
+La clase `ArchivoServicio.java` proporciona las operaciones necesarias para leer y escribir información.
+
+Los servicios cargan los registros almacenados al inicializarse, permitiendo recuperar las rutas, pasajeros, viajes y boletos cuando se inicia nuevamente el programa.
+
+Esto evita que la información registrada se pierda al cerrar la aplicación.
+
+## 9. Pruebas y ejecución
+
+**Requisitos:**
+- JDK compatible con la versión configurada en el proyecto Maven.
+- Apache NetBeans con soporte para Maven.
+- Repositorio `Tr1-BDD` descargado.
+
+**Cómo ejecutar el ejercicio:**
+
+1. Abrir el proyecto Maven `Tr1-BDD` en Apache NetBeans.
+2. Ubicar el paquete `com.mycompany.tr1.bdd.ejercicio3`.
+3. Abrir `Main.java`.
+4. Hacer clic derecho sobre el archivo y seleccionar **Run File**, o presionar **Shift + F6**.
+5. Utilizar las opciones del menú para registrar rutas, pasajeros, viajes y boletos.
+6. Comprobar los registros y su recuperación después de reiniciar el programa.
+
+**Verificaciones realizadas durante el desarrollo:**
+
+- Registro de rutas y recuperación de sus datos.
+- Registro de pasajeros y recuperación de sus datos.
+- Registro de viajes asociados a rutas existentes.
+- Venta de boletos y asignación de asientos.
+- Anulación de boletos.
+- Consulta de rutas, pasajeros, viajes y boletos.
+- Recuperación de la información almacenada en los archivos TXT.
+
+> ![Menú principal](imagenes/menu.png)
+>
+> ![Registro y consulta de datos](imagenes/registros.png)
+
+>
+> ![Venta y anulación de boletos](imagenes/boletos.png)
+
+>
+> ![Archivos TXT generados](imagenes/archivos.png)
+
+## 10. Decisiones de diseño
+
+- **Programación orientada a objetos:** se separan las entidades del sistema en clases independientes, facilitando la organización y el mantenimiento del código.
+- **Separación por responsabilidades:** el paquete `modelo` contiene las entidades y enumeraciones, mientras que `servicio` concentra las operaciones del sistema.
+- **Uso de enumeraciones:** `TipoPasajero`, `TipoViaje` y `EstadoBoleto` permiten representar opciones definidas y evitar valores inconsistentes.
+- **Relaciones entre objetos:** los viajes mantienen una referencia a su ruta y los boletos mantienen referencias al viaje y al pasajero correspondiente.
+- **Control de asientos:** se considera la capacidad del viaje y los boletos registrados para determinar la disponibilidad.
+- **Anulación de boletos:** se conserva el registro del boleto y se actualiza su estado, en lugar de eliminarlo.
+- **Persistencia en archivos planos:** los datos se almacenan en archivos TXT utilizando `ArchivoServicio`, permitiendo recuperar la información en ejecuciones posteriores.
+- **Coordinación de servicios:** `TransporteServicio` centraliza la inicialización de los servicios y sus dependencias.
+
+## 11. Autor
+
+**[Line Quinteros]** — Ingeniería de Software, Universidad Técnica del Norte (UTN).
+
+Desarrollo del Ejercicio 3: Sistema de Transporte y Venta de Boletos.
+
+
 
 
 //***************************************************************************************************************************************************************
