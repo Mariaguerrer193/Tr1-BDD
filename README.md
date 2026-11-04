@@ -204,13 +204,299 @@ María José Guerrero — Ingeniería de Software, Universidad Técnica del Nort
 
 //***************************************************************************************************************************************************************
 
+## EJERCICIO 2: Sistema de Cooperativa de Ahorro y Crédito
+
+Sistema desarrollado en Java para administrar socios y cuentas bancarias de una cooperativa de Imbabura. Permite registrar depósitos, retiros y transferencias; calcular intereses; cerrar cuentas según las reglas establecidas; generar reportes y guardar la información en archivos.
+
+**Código:** `src/main/java/com/mycompany/tr1/bdd/ejercicio2/`  
+**Clase principal:** `ejercicio2/Main.java`  
+**Tecnología:** Java, Maven y persistencia mediante serialización de objetos en un archivo `.dat`.
+
+### 1. Enunciado resumido
+
+Cada socio puede tener una o varias cuentas de ahorro o corrientes. Las cuentas de ahorro generan un interés anual del 4 %, calculado mensualmente, y deben mantener un saldo mínimo de $5. Las cuentas corrientes no generan intereses y admiten un sobregiro de hasta $200. Los depósitos y retiros deben ser mayores que cero. Las transferencias se registran en ambas cuentas y deben rechazarse sin cambios parciales cuando alguna validación falla. No se puede cerrar una cuenta con saldo distinto de cero; si contiene movimientos, se conserva como inactiva. El sistema proporciona cinco reportes y permite recuperar los datos entre ejecuciones.
+
+### 2. Reglas de negocio
+
+| N.º | Regla |
+|---|---|
+| 1 | Cada socio se identifica por una cédula única y puede tener varias cuentas. |
+| 2 | Cada cuenta posee un número único y pertenece a un socio previamente registrado. |
+| 3 | Las cuentas de ahorro requieren un depósito inicial mínimo de $5 y no pueden quedar por debajo de ese saldo. |
+| 4 | El interés mensual de ahorros se calcula como `saldo × 0.04 / 12`, redondeado a dos decimales. |
+| 5 | No se acredita el interés más de una vez en el mismo mes. Las cuentas corrientes no reciben intereses. |
+| 6 | Las cuentas corrientes permiten un saldo negativo de hasta -$200. |
+| 7 | Todo depósito o retiro debe ser mayor que cero. |
+| 8 | No se puede transferir a la misma cuenta, ni transferir un monto inválido. |
+| 9 | Antes de transferir se validan origen y destino; si alguna validación falla, no cambian los saldos ni los movimientos. |
+| 10 | Una cuenta con saldo distinto de cero no se puede cerrar. |
+| 11 | Una cuenta con movimientos y saldo cero se marca inactiva, conservando su historial. Una cuenta sin movimientos y saldo cero se puede eliminar. |
+| 12 | Las cuentas inactivas no admiten depósitos, retiros ni transferencias. |
+| 13 | Cada movimiento registra fecha, tipo, monto, referencia, saldo anterior y saldo posterior. |
+| 14 | Los datos se guardan y recuperan desde un archivo `.dat` mediante serialización de objetos Java. |
+
+### 3. Estructura de carpetas
+
+```text
+ejercicio2/
+├── Main.java                    (31 pruebas automáticas)
+├── modelo/
+│   ├── Socio.java              (datos del socio)
+│   ├── Cuenta.java             (clase abstracta)
+│   ├── CuentaAhorro.java       (interés y saldo mínimo)
+│   ├── CuentaCorriente.java    (límite de sobregiro)
+│   ├── Movimiento.java         (historial y saldos)
+│   └── TipoMovimiento.java     (enum: DEPOSITO, RETIRO, INTERES)
+├── servicio/
+│   ├── Cooperativa.java        (gestión y operaciones bancarias)
+│   └── Reportes.java           (cinco reportes)
+└── persistencia/
+    └── RepositorioArchivo.java  (guardar y cargar archivos .dat)
+```
+
+>  <img width="275" height="195" alt="image" src="https://github.com/user-attachments/assets/c2bb907c-d06c-419f-85a5-ab773e4cb8a1" />
 
 
 
+### 4. Diagrama de clases
 
-EJERCICIO 2: 
+> <img width="1009" height="545" alt="image" src="https://github.com/user-attachments/assets/c052eaba-b261-4f39-a1a3-241e042d5c5a" />
+
+**Relación socio-cuenta:** se realiza mediante `cedulaSocio`; no se almacena un objeto `Socio` dentro de cada `Cuenta`.
 
 
+### 5. Operaciones de la clase `Cooperativa`
+
+| Método | Qué hace |
+|---|---|
+| `registrarSocio(cedula, nombre)` | Registra un socio nuevo y rechaza cédulas duplicadas. |
+| `crearAhorro(numero, cedula, inicial)` | Abre una cuenta de ahorro con saldo inicial de al menos $5. |
+| `crearCorriente(numero, cedula, inicial)` | Abre una cuenta corriente con saldo inicial no negativo. |
+| `buscarSocio(cedula)` / `buscarCuenta(numero)` | Obtiene el registro solicitado o indica que no existe. |
+| `depositar(numero, monto)` | Valida el monto, aumenta el saldo y registra el movimiento. |
+| `retirar(numero, monto)` | Valida el monto, aplica el límite correspondiente y registra el movimiento. |
+| `transferir(origen, destino, monto)` | Valida las dos cuentas antes de efectuar el retiro y el depósito. |
+| `aplicarInteresesDelMes()` | Acredita intereses a cuentas de ahorro activas, sin duplicar el mes. |
+| `cerrarCuenta(numero)` | Rechaza saldos no nulos; elimina cuentas sin movimientos o desactiva las que tienen historial. |
+
+### 6. Reportes para el gerente
+
+| Reporte | Método |
+|---|---|
+| Estado de cuenta y saldo después de cada movimiento | `estadoCuenta(numero)` |
+| Intereses mensuales de todas las cuentas de ahorro | `interesesDelMes(mes)` |
+| Cuentas corrientes en sobregiro | `cuentasEnSobregiro()` |
+| Total depositado y retirado en un período | `movimientosEnPeriodo(desde, hasta)` |
+| Auditoría de saldos registrados | `auditoriaSaldos()` |
+
+El reporte del período contabiliza los movimientos `DEPOSITO` y `RETIRO`, incluidas aperturas y transferencias. Los intereses se presentan por separado. En el reporte de intereses, el mes actual puede mostrar una **estimación** basada en el saldo vigente cuando todavía no se ha acreditado.
+
+### 7. Ejemplo de uso
+
+```java
+Cooperativa coop = new Cooperativa();
+coop.registrarSocio("1002003004", "Ana Lopez");
+
+coop.crearAhorro("A001", "1002003004", new BigDecimal("1200.00"));
+coop.crearCorriente("C001", "1002003004", new BigDecimal("50.00"));
+
+coop.depositar("A001", new BigDecimal("100.00"));
+coop.retirar("A001", new BigDecimal("50.00"));
+coop.transferir("A001", "C001", new BigDecimal("100.00"));
+coop.aplicarInteresesDelMes();
+
+Reportes reportes = new Reportes(coop);
+System.out.println(reportes.estadoCuenta("A001"));
+System.out.println(reportes.auditoriaSaldos());
+
+Path archivo = Path.of("datos", "cooperativa_pruebas.dat");
+RepositorioArchivo.guardar(coop, archivo);
+Cooperativa recuperada = RepositorioArchivo.cargar(archivo);
+```
+
+*Para este ejemplo se requieren las importaciones de `BigDecimal`, `Path` y de las clases de los paquetes `modelo`, `servicio` y `persistencia`.*
+
+### 8. Ejemplo de salida de los reportes
+
+La clase `Main.java` ejecuta pruebas automáticas y, una vez finalizadas correctamente, imprime los saldos y los reportes de la cooperativa. Los siguientes resultados corresponden a la ejecución real realizada en NetBeans el **4 de noviembre de 2026**.
+
+**Saldos finales de las cuentas**
+
+```text
+=== SALDOS DE LAS CUENTAS ===
+Cuenta: A001 | Tipo: AHORROS | Saldo: $1153.83 | Estado: ACTIVA
+Cuenta: C001 | Tipo: CORRIENTE | Saldo: $120.00 | Estado: ACTIVA
+Cuenta: C002 | Tipo: CORRIENTE | Saldo: $0.00 | Estado: INACTIVA
+```
+
+**Reporte 1. Estado de cuenta**
+
+Muestra los depósitos, retiros e intereses aplicados a la cuenta de ahorros `A001`, junto con el saldo resultante después de cada movimiento.
+
+```text
+=== ESTADO DE CUENTA ===
+Cuenta: A001 | Tipo: AHORROS | Estado: ACTIVA
+2026-11-04T00:00:41.879272100 | DEPOSITO | Monto: $1200.00 | Saldo despues: $1200.00 | APERTURA
+2026-11-04T00:00:41.884278300 | DEPOSITO | Monto: $100.00 | Saldo despues: $1300.00 | VENTANILLA
+2026-11-04T00:00:41.891283600 | RETIRO | Monto: $50.00 | Saldo despues: $1250.00 | VENTANILLA
+2026-11-04T00:00:41.899791700 | RETIRO | Monto: $100.00 | Saldo despues: $1150.00 | TRANSFERENCIA-1
+2026-11-04T00:00:41.909790900 | INTERES | Monto: $3.83 | Saldo despues: $1153.83 | INTERES MENSUAL 2026-11
+SALDO ACTUAL: $1153.83
+```
+
+> <img width="686" height="185" alt="image" src="https://github.com/user-attachments/assets/fc312ac9-b646-4fa0-a8eb-83891c8c45e3" />
+  
+> *Figura 1. Saldos finales e historial de movimientos de la cuenta de ahorros A001.*
+
+**Reporte 2. Intereses mensuales**
+
+Para noviembre de 2026, el sistema acreditó **$3.83** de interés mensual a la cuenta de ahorros `A001`. La cuenta corriente no genera intereses.
+
+```text
+=== INTERESES DE AHORROS: 2026-11 ===
+Cuenta A001: $3.83 | ACREDITADO
+TOTAL: $3.83
+```
+
+> <img width="246" height="92" alt="image" src="https://github.com/user-attachments/assets/95ab1f40-ba72-4cc9-b61f-347e0e32f7ab" />
+
+> *Figura 2. Interés mensual acreditado en la cuenta de ahorros A001.*
+
+**Reporte 3. Cuentas en sobregiro**
+
+Durante la prueba del límite de sobregiro, la cuenta corriente `C001` alcanzó un saldo negativo de **-$200.00**, por lo que apareció en el reporte:
+
+```text
+=== CUENTAS EN SOBREGIRO ===
+Cuenta C001 | Saldo: $-200.00
+TOTAL: 1
+```
+
+Más adelante se depositaron $220.00 y se transfirieron $100.00 a esa cuenta; por eso, al emitir los reportes finales, ya no había cuentas en sobregiro:
+
+```text
+=== CUENTAS EN SOBREGIRO ===
+TOTAL: 0
+```
+  
+> <img width="363" height="134" alt="image" src="https://github.com/user-attachments/assets/87c1a985-4046-4691-867e-ca3dd2315094" />
+
+> Figura 3. Identificación de una cuenta corriente con el sobregiro máximo permitido.*
+
+**Reporte 4. Total depositado y retirado en un período**
+
+El sistema contabilizó los movimientos registrados entre el 3 y el 5 de noviembre de 2026.
+
+```text
+=== MOVIMIENTOS DEL 2026-11-03 AL 2026-11-05 ===
+TOTAL DEPOSITADO: $1680.00
+TOTAL RETIRADO: $410.00
+Nota: aperturas y transferencias cuentan como movimientos.
+```
+
+Estos totales incluyen los depósitos de apertura y los movimientos de las transferencias internas. Los intereses acreditados se registran como movimientos de tipo `INTERES` y no se suman al total depositado.
+
+**Reporte 5. Auditoría de saldos**
+
+La auditoría reconstruye el saldo de cada cuenta utilizando los movimientos registrados y lo compara con el saldo actual.
+
+```text
+=== AUDITORIA DE SALDOS ===
+Cuenta A001 | OK | Calculado: $1153.83 | Registrado: $1153.83
+Cuenta C001 | OK | Calculado: $120.00 | Registrado: $120.00
+Cuenta C002 | OK | Calculado: $0.00 | Registrado: $0.00
+CUENTAS CON DIFERENCIAS: 0
+```
+
+> <img width="363" height="134" alt="image" src="https://github.com/user-attachments/assets/c08a0daf-e451-4a1d-a07c-6d5f1257de66" />
+
+> *Figura 4. Resumen de movimientos financieros y verificación de consistencia de los saldos.*
+
+### 9. Decisiones de diseño
+
+- **Programación orientada a objetos:** la clase abstracta `Cuenta` concentra las propiedades y operaciones comunes. `CuentaAhorro` y `CuentaCorriente` heredan de ella y aplican sus respectivas restricciones de saldo.
+- **Manejo de dinero:** se utiliza `BigDecimal` para representar montos y saldos, evitando los errores típicos de precisión de `double`. Los intereses se redondean a dos decimales.
+- **Interés mensual:** se calcula el 4 % anual dividido entre 12 sobre el saldo de la cuenta de ahorros al momento de aplicarlo. El historial impide acreditar dos veces el interés correspondiente a un mismo mes.
+- **Validación previa de transferencias:** antes de efectuar un retiro y un depósito vinculados, se comprueban ambas cuentas y el monto. Si alguna regla de negocio no se cumple, no se registran movimientos ni se alteran los saldos.
+- **Conservación del historial:** las cuentas con movimientos y saldo cero se marcan como inactivas en lugar de eliminarse. Esto permite consultar las operaciones anteriores.
+- **Auditoría:** cada movimiento conserva el saldo anterior y posterior. El reporte vuelve a calcular el saldo a partir del historial y detecta diferencias.
+- **Persistencia en archivos:** `RepositorioArchivo` utiliza serialización de objetos Java para guardar y recuperar socios, cuentas y movimientos en el archivo binario `datos/cooperativa_pruebas.dat`. El guardado ocurre al ejecutar el método `guardar()`.
+- **Pruebas automatizadas sin menú:** `Main.java` ejecuta verificaciones con mensajes `[OK]` y `[ERROR]`, y después imprime los cinco reportes para facilitar la revisión de resultados.
+
+### 10. Pruebas y ejecución
+
+**Cómo ejecutar el ejercicio:**
+
+1. Abrir el proyecto Maven `Tr1-BDD` en Apache NetBeans.
+2. Ubicar `src/main/java/com/mycompany/tr1/bdd/ejercicio2/Main.java`.
+3. Hacer clic derecho sobre `Main.java` y seleccionar **Run File**, o presionar **Shift + F6**.
+4. Revisar los mensajes de las pruebas, los cinco reportes y el resultado final de la consola.
+
+**Verificaciones realizadas:**
+
+| N.º | Caso de prueba | Resultado real |
+|---|---|---|
+| 1 | Registrar dos socios | OK |
+| 2 | Rechazar cédula repetida | OK |
+| 3 | Crear varias cuentas para un socio | OK |
+| 4 | Rechazar número de cuenta repetido | OK |
+| 5 | Rechazar apertura de ahorros con menos de $5 | OK |
+| 6 | Depositar $100 en ahorros | OK |
+| 7 | Rechazar depósito de $0 | OK |
+| 8 | Rechazar depósito negativo | OK |
+| 9 | Retirar $50 de ahorros | OK |
+| 10 | Rechazar retiro de $0 | OK |
+| 11 | Mantener saldo mínimo de $5 en ahorros | OK |
+| 12 | Permitir sobregiro de hasta $200 | OK |
+| 13 | Rechazar sobregiro superior al límite | OK |
+| 14 | Identificar cuenta en sobregiro en el reporte | OK |
+| 15 | Recuperar saldo corriente mediante depósito | OK |
+| 16 | Transferencia válida de $100 | OK |
+| 17 | Rechazar transferencia a la misma cuenta | OK |
+| 18 | Rechazar transferencia de $0 | OK |
+| 19 | Evitar cambios de saldos y movimientos ante transferencia fallida | OK |
+| 20 | Rechazar cierre de cuenta con saldo diferente de cero | OK |
+| 21 | Eliminar cuenta sin movimientos | OK |
+| 22 | Desactivar cuenta con historial y saldo cero | OK |
+| 23 | Rechazar depósito en cuenta inactiva | OK |
+| 24 | Rechazar transferencia hacia una cuenta inactiva sin alterar el origen | OK |
+| 25 | Calcular y acreditar interés mensual | OK |
+| 26 | Evitar acreditación duplicada de intereses | OK |
+| 27 | Generar estado de cuenta con saldo posterior | OK |
+| 28 | Generar reporte de intereses del mes | OK |
+| 29 | Calcular depósitos y retiros por período | OK |
+| 30 | Auditar los saldos sin diferencias | OK |
+| 31 | Guardar y recuperar los datos desde un archivo | OK |
+
+**Resumen de la ejecución real en NetBeans:**
+
+```text
+=== RESULTADO FINAL ===
+Pruebas aprobadas: 31
+Pruebas fallidas: 0
+TODAS LAS PRUEBAS FUERON CORRECTAS
+Datos de prueba: datos/cooperativa_pruebas.dat
+
+BUILD SUCCESS
+Total time:  3.239 s
+Finished at: 2026-11-04T00:00:42-05:00
+```
+
+> <img width="407" height="155" alt="image" src="https://github.com/user-attachments/assets/1e021960-4046-453e-a5e0-89ecc123eb1b" />
+
+> *Figura 5. Resultado de las 31 verificaciones automáticas del sistema bancario.*
+
+**Archivo de datos de prueba:** `datos/cooperativa_pruebas.dat`. Se genera desde el programa cuando se ejecuta la prueba de persistencia; su contenido es binario, por lo que no se modifica directamente como un archivo de texto.
+ 
+> <img width="620" height="161" alt="image" src="https://github.com/user-attachments/assets/4510e55d-5954-40a5-9e7d-0eaaf4953b1d" />
+
+> *Figura 6. Archivo generado para conservar la información de la cooperativa.*
+
+### 11. Autor
+
+**Ester Madeley Carrión Castro** — Ingeniería de Software, Universidad Técnica del Norte (UTN).
+
+---
 
 
 
