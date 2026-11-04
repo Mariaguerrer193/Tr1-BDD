@@ -1,0 +1,4 @@
+LIBRO|L001|Estructuras de Datos en Java|2|2
+LIBRO|L002|Sistemas Operativos Modernos|1|0
+REVISTA|R001|IEEE Software|1|1
+REVISTA|R002|ACM Communications|2|2
