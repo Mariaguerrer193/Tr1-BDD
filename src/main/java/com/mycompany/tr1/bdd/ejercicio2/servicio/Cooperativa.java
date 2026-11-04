@@ -1,4 +1,3 @@
-
 package com.mycompany.tr1.bdd.ejercicio2.servicio;
 
 import com.mycompany.tr1.bdd.ejercicio2.modelo.*;
@@ -234,6 +233,4 @@ public synchronized List<Movimiento> aplicarInteresesDelMes() {
 
         }
     }
-
-
 }

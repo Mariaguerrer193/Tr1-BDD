@@ -1,4 +1,3 @@
-
 package com.mycompany.tr1.bdd.ejercicio2.modelo;
 
 import java.math.BigDecimal;

@@ -136,6 +136,9 @@ public class Main {
             comprobar(texto.contains("C001")
                     && texto.contains("-200.00"),
                     "No se encuentra la cuenta en sobregiro");
+
+            // Mostrar el reporte mientras existe el sobregiro
+            System.out.println("\n" + texto);
         });
 
         // 15. RECUPERAR SALDO CORRIENTE
@@ -346,6 +349,43 @@ public class Main {
                         "Error de archivo", e);
             }
         });
+
+        // MOSTRAR VALORES Y REPORTES DEL SISTEMA
+
+        if (fallidas == 0) {
+
+            System.out.println("\n=== SALDOS DE LAS CUENTAS ===");
+
+            for (Cuenta cuenta : coop.getCuentas()) {
+
+                System.out.println(
+                        "Cuenta: " + cuenta.getNumero()
+                        + " | Tipo: " + cuenta.getTipo()
+                        + " | Saldo: $" + cuenta.getSaldo()
+                        + " | Estado: "
+                        + (cuenta.isActiva() ? "ACTIVA" : "INACTIVA"));
+            }
+
+            // REPORTE 1: ESTADO DE CUENTA
+            System.out.println("\n"
+                    + reportes.estadoCuenta("A001"));
+
+            // REPORTE 2: INTERESES MENSUALES
+            System.out.println("\n"
+                    + reportes.interesesDelMes(YearMonth.now()));
+
+            // REPORTE 3: CUENTAS EN SOBREGIRO
+            System.out.println("\n"
+                    + reportes.cuentasEnSobregiro());
+
+            // REPORTE 4: DEPOSITOS Y RETIROS
+            System.out.println("\n"
+                    + reportes.movimientosEnPeriodo(desde, hasta));
+
+            // REPORTE 5: AUDITORIA DE SALDOS
+            System.out.println("\n"
+                    + reportes.auditoriaSaldos());
+        }
 
         // RESULTADO FINAL
         System.out.println("\n=== RESULTADO FINAL ===");
