@@ -27,7 +27,7 @@ import java.util.List;
 
 public class BoletoServicio {
 
-    private List<Boleto> boletos;
+     private List<Boleto> boletos;
     private ArchivoServicio archivo;
     private ViajeServicio viajeServicio;
     private PasajeroServicio pasajeroServicio;
@@ -50,6 +50,14 @@ public class BoletoServicio {
 
         if (viaje == null || pasajero == null) {
             System.out.println("El viaje o pasajero no existe.");
+            return null;
+        }
+
+        // Validar que el viaje todavía no haya salido
+        if (!viaje.getFechaHoraSalida().isAfter(LocalDateTime.now())) {
+            System.out.println(
+                    "No se puede vender boletos para un viaje que ya salió."
+            );
             return null;
         }
 
@@ -117,6 +125,19 @@ public class BoletoServicio {
 
         if (boleto.getEstado() == EstadoBoleto.ANULADO) {
             System.out.println("El boleto ya está anulado.");
+            return false;
+        }
+
+        // Validar que falten al menos 2 horas para la salida
+        LocalDateTime limiteAnulacion = LocalDateTime.now().plusHours(2);
+
+        if (boleto.getViaje().getFechaHoraSalida()
+                .isBefore(limiteAnulacion)) {
+
+            System.out.println(
+                    "No se puede anular el boleto. "
+                    + "Deben faltar al menos 2 horas para la salida."
+            );
             return false;
         }
 
@@ -215,10 +236,10 @@ public class BoletoServicio {
                     }
 
                 } catch (IllegalArgumentException | java.time.DateTimeException e) {
-    System.out.println(
-            "Error al cargar un boleto: " + linea
-    );
-}
+                    System.out.println(
+                            "Error al cargar un boleto: " + linea
+                    );
+                }
             }
         }
     }
