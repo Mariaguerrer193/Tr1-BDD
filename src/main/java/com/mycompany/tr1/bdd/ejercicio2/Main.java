@@ -1,80 +1,78 @@
-package com.mycompany.tr1.bdd.ejercicio2;
 
-import com.mycompany.tr1.bdd.ejercicio2.modelo.*;
+package com.mycompany.tr1.bdd.ejercicio2;
+import com.mycompany.tr1.bdd.ejercicio2.persistencia.RepositorioArchivo;
 import com.mycompany.tr1.bdd.ejercicio2.servicio.Cooperativa;
+import com.mycompany.tr1.bdd.ejercicio2.servicio.Reportes;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.YearMonth;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        Cooperativa cooperativa = new Cooperativa();
-
-        cooperativa.registrarSocio("1002003004", "Ana Lopez");
-
-        CuentaAhorro ahorro = cooperativa.crearAhorro(
-                "001", "1002003004", new BigDecimal("1200.00"));
-
-        CuentaCorriente corriente = cooperativa.crearCorriente(
-                "002", "1002003004", new BigDecimal("50.00"));
-
-        cooperativa.crearCorriente(
-                "003", "1002003004", BigDecimal.ZERO);
-
-        // PRUEBA 1: INTERESES MENSUALES
-
-        System.out.println("=== INTERESES ===");
-
-        System.out.println("Interes mensual previsto: $"
-                + ahorro.calcularInteresMensual());
-
-        System.out.println("Intereses acreditados: "
-                + cooperativa.aplicarInteresesDelMes().size());
-
-        System.out.println("Saldo ahorro: $"
-                + ahorro.getSaldo());
-
-        System.out.println("Segunda aplicacion en el mismo mes: "
-                + cooperativa.aplicarInteresesDelMes().size());
-
-        // PRUEBA 2: CIERRE CON SALDO DISTINTO DE CERO
-
-        System.out.println("\n=== CIERRE DE CUENTAS ===");
+        Path archivo = Path.of("datos", "cooperativa.dat");
 
         try {
-            cooperativa.cerrarCuenta("001");
-        } catch (IllegalStateException e) {
-            System.out.println("Cierre rechazado: " + e.getMessage());
-        }
+            Cooperativa cooperativa =
+                    RepositorioArchivo.cargar(archivo);
 
-        // PRUEBA 3: CIERRE DE CUENTA CON MOVIMIENTOS
+            if (cooperativa.getSocios().isEmpty()) {
 
-        cooperativa.retirar("002", new BigDecimal("50.00"));
+                cooperativa.registrarSocio(
+                        "1002003004", "Ana Lopez");
 
-        System.out.println("Saldo corriente: $"
-                + corriente.getSaldo());
+                cooperativa.crearAhorro(
+                        "001", "1002003004",
+                        new BigDecimal("1200.00"));
 
-        cooperativa.cerrarCuenta("002");
+                cooperativa.crearCorriente(
+                        "002", "1002003004",
+                        new BigDecimal("50.00"));
 
-        System.out.println("Cuenta 002 activa: "
-                + corriente.isActiva());
+                cooperativa.transferir(
+                        "002", "001", new BigDecimal("70.00"));
 
-        // PRUEBA 4: OPERACION EN CUENTA INACTIVA
+                cooperativa.aplicarInteresesDelMes();
 
-        try {
-            cooperativa.depositar("002", new BigDecimal("10.00"));
-        } catch (IllegalStateException e) {
-            System.out.println("Deposito rechazado: " + e.getMessage());
-        }
+                RepositorioArchivo.guardar(cooperativa, archivo);
 
-        // PRUEBA 5: ELIMINAR CUENTA SIN MOVIMIENTOS
+                System.out.println(
+                        "Datos de prueba creados y guardados.");
 
-        cooperativa.cerrarCuenta("003");
+            } else {
+                System.out.println(
+                        "Datos recuperados desde el archivo.");
+            }
 
-        try {
-            cooperativa.buscarCuenta("003");
-        } catch (IllegalArgumentException e) {
-            System.out.println("Cuenta 003 eliminada: " + e.getMessage());
+            Reportes reportes = new Reportes(cooperativa);
+
+            System.out.println("\n"
+                    + reportes.estadoCuenta("001"));
+
+            System.out.println("\n"
+                    + reportes.interesesDelMes(YearMonth.now()));
+
+            System.out.println("\n"
+                    + reportes.cuentasEnSobregiro());
+
+            System.out.println("\n"
+                    + reportes.movimientosEnPeriodo(
+                            LocalDate.now().withDayOfMonth(1),
+                            LocalDate.now()));
+
+            System.out.println("\n"
+                    + reportes.auditoriaSaldos());
+
+            System.out.println("\nArchivo guardado en: "
+                    + archivo.toAbsolutePath());
+
+        } catch (IOException e) {
+            System.err.println(
+                    "No fue posible leer o guardar los datos: "
+                    + e.getMessage());
         }
     }
 }
