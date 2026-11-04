@@ -23,145 +23,80 @@ Ejecuta la clase Main del ejercicio que quieras probar.
 
 
 
-EJERCICIO 1: Sistema de Biblioteca UTN
+## EJERCICIO 1: Sistema de Biblioteca UTN
 
-Sistema en Java para el control de inventario, préstamo de libros y revistas, cálculo de multas por retraso y reportes para el administrador con persistencia en archivos de texto.
+Sistema desarrollado en Java para controlar el inventario de una biblioteca, registrar préstamos de libros y revistas, calcular multas por retraso y generar reportes para el administrador, con persistencia en archivos de texto.
 
-Código en: src/main/java/com/mycompany/tr1/bdd/ejercicio1/
-Clase principal: ejercicio1/Main.java
+**Código:** `src/main/java/com/mycompany/tr1/bdd/ejercicio1/`  
+**Clase principal:** `ejercicio1/Main.java`  
+**Tecnología:** Java, Maven y persistencia en archivos planos `.txt` delimitados por `|`.
 
-1. Enunciado resumido
+### 1. Enunciado resumido
 
-La biblioteca de la UTN presta libros y revistas. Cada título tiene varios ejemplares.
+La biblioteca de la UTN presta libros y revistas, y cada título tiene varios ejemplares. Los libros se prestan por 7 días con una multa de $0,25 por día de retraso; las revistas, por 3 días con una multa de $0,50 por día de retraso. Un usuario puede tener como máximo 3 préstamos activos simultáneos. No se presta si no hay ejemplares disponibles, no se devuelve dos veces el mismo préstamo y un usuario con multas pendientes no puede solicitar nuevos préstamos. El sistema proporciona cinco reportes para el administrador.
 
-Hay que controlar cuántos están disponibles y cobrar multas por retraso.
-Los libros se prestan por 7 días y la multa es de $0,25 por día de retraso.
-Las revistas se prestan por 3 días y la multa es de $0,50 por día de retraso.
-Un usuario puede tener como máximo 3 préstamos activos simultáneos.
-No se presta si no hay ejemplares disponibles.
-No se devuelve el mismo préstamo dos veces.
-Un usuario con multas pendientes no puede solicitar nuevos préstamos.
-El administrador requiere reportes de préstamos vencidos, historial de usuario, materiales más prestados, total de multas en un período y auditoría de ejemplares disponibles.
+### 2. Reglas de negocio
 
-2. Reglas de negocio
+| N.º | Regla |
+|---|---|
+| 1 | Los libros tienen un plazo de préstamo de 7 días y una multa de $0,25 por día de retraso. |
+| 2 | Las revistas tienen un plazo de préstamo de 3 días y una multa de $0,50 por día de retraso. |
+| 3 | Solo se presta si `ejemplaresDisponibles > 0`; al prestar se descuenta 1 unidad. |
+| 4 | Un usuario puede tener como máximo 3 préstamos con estado `ACTIVO`. |
+| 5 | Un usuario con multas pendientes no puede solicitar nuevos préstamos. |
+| 6 | No se devuelve el mismo préstamo dos veces; al devolver se restaura 1 unidad al stock. |
+| 7 | Si la devolución supera la fecha esperada, `multa = díasRetraso × tarifaDiaria` y se asigna al usuario. |
+| 8 | El usuario puede liquidar todas sus multas acumuladas para desbloquear nuevos préstamos. |
+| 9 | Toda la información se guarda en archivos planos (`materiales.txt`, `usuarios.txt`, `prestamos.txt`). |
 
-#	Regla
-1	Los libros tienen un plazo de préstamo de 7 días y multa de $0,25 por día de retraso.
-2	Las revistas tienen un plazo de préstamo de 3 días y multa de $0,50 por día de retraso.
-3	Solo se presta si ejemplaresDisponibles > 0; al prestar se descuenta 1 unidad.
-4	Un usuario puede tener como máximo 3 préstamos con estado ACTIVO.
-5	Un usuario con multas pendientes no puede solicitar nuevos préstamos.
-6	No se devuelve el mismo préstamo dos veces; al devolver se restaura 1 unidad al stock disponible.
-7	Si la devolución supera la fecha límite esperada, se calcula multa = díasRetraso × tarifaDiaria y se asigna al usuario.
-8	El usuario puede liquidar la totalidad de sus multas acumuladas para desbloquear nuevos préstamos.
-9	Toda la información se persiste en archivos planos (materiales.txt, usuarios.txt, prestamos.txt).
+### 3. Estructura de carpetas
 
-3. Estructura de carpetas
-
+```text
 ejercicio1/
-├── Main.java                 (menú interactivo y validaciones automáticas [OK]/[FALLO])
+├── Main.java                  (menú interactivo y validaciones automáticas [OK]/[FALLO])
 ├── modelo/
-│   ├── Material.java         (clase abstracta base)
-│   ├── Libro.java            (hereda de Material)
-│   ├── Revista.java          (hereda de Material)
+│   ├── Material.java          (clase abstracta base)
+│   ├── Libro.java             (hereda de Material)
+│   ├── Revista.java           (hereda de Material)
 │   ├── Usuario.java
 │   ├── Prestamo.java
-│   └── EstadoPrestamo.java   (enum: ACTIVO, DEVUELTO, CON_RETRASO)
+│   └── EstadoPrestamo.java    (enum: ACTIVO, DEVUELTO, CON_RETRASO)
 └── servicio/
     ├── ArchivoServicio.java   (lectura y escritura de archivos .txt)
-    └── BibliotecaServicio.java(lógica del negocio, validaciones y reportes)
+    └── BibliotecaServicio.java (lógica del negocio, validaciones y reportes)
+```
 
-4. Diagrama de clases
+![Estructura del proyecto en NetBeans](https://i.postimg.cc/DwnL33mP/image.png)
 
-«abstract»
-Material
-#String id
-#String titulo
-#int ejemplaresTotales
-#int ejemplaresDisponibles
-+prestar() : boolean
-+devolver() : void
-+getDiasPrestamo()* : int
-+getMultaPorDia()* : double
+### 4. Diagrama de clases
 
-Libro
-+getDiasPrestamo() : int
-+getMultaPorDia() : double
+![Diagrama de clases del Ejercicio 1](https://i.postimg.cc/yNTR8Q30/image.png)
 
-Revista
-+getDiasPrestamo() : int
-+getMultaPorDia() : double
+`Libro` y `Revista` heredan de `Material`. `BibliotecaServicio` gestiona las listas en memoria y `ArchivoServicio` las guarda en los archivos planos de texto.
 
-Usuario
--String cedula
--String nombre
--int prestamosActivos
--double multasPendientes
-+puedePrestar() : boolean
-+incrementarPrestamos() : void
-+decrementarPrestamos() : void
-+acumularMulta(double monto) : void
-+liquidarMultas() : void
+### 5. Operaciones de la clase `BibliotecaServicio`
 
-EstadoPrestamo
-«enum»
-ACTIVO
-DEVUELTO
-CON_RETRASO
+| Método | Qué hace |
+|---|---|
+| `registrarLibro` / `registrarRevista` | Valida ID único, crea el material y actualiza `materiales.txt`. |
+| `registrarUsuario(cedula, nombre)` | Valida cédula única, crea el usuario y actualiza `usuarios.txt`. |
+| `prestarMaterial(idPrestamo, idMat, cedula, fecha)` | Verifica disponibilidad, límite de 3 préstamos y ausencia de multas antes de generar el préstamo. |
+| `devolverMaterial(idPrestamo, fechaDevolucion)` | Valida que no esté devuelto, restaura el stock, calcula la multa y actualiza el saldo del usuario. |
+| `pagarMultasUsuario(cedula)` | Pone a cero la deuda del usuario en memoria y en `usuarios.txt`. |
 
-Prestamo
--String idPrestamo
--String idMaterial
--String cedulaUsuario
--LocalDate fechaPrestamo
--LocalDate fechaDevolucionEsperada
--LocalDate fechaDevolucionReal
--EstadoPrestamo estado
--double multaGenerada
-+estaVencido(LocalDate hoy) : boolean
-+calcularMulta(LocalDate hoy, double tarifa) : double
+### 6. Reportes para el administrador
 
-ArchivoServicio
-+cargarMateriales() : List<Material>
-+guardarMateriales(List<Material>) : void
-+cargarUsuarios() : List<Usuario>
-+guardarUsuarios(List<Usuario>) : void
-+cargarPrestamos() : List<Prestamo>
-+guardarPrestamos(List<Prestamo>) : void
+| Reporte | Método |
+|---|---|
+| Préstamos vencidos a la fecha | `reportePrestamosVencidos(hoy)` |
+| Historial de préstamos de un usuario | `reporteHistorialUsuario(cedula)` |
+| Materiales más prestados | `reporteMaterialesMasPrestados()` |
+| Total de multas generadas en un período | `reporteTotalMultasPeriodo(desde, hasta)` |
+| Auditoría de ejemplares disponibles | `reporteAuditoriaDisponibles()` |
 
-BibliotecaServicio
--List<Material> materiales
--List<Usuario> usuarios
--List<Prestamo> prestamos
-+registrarLibro(id, titulo, ejemplares) : boolean
-+registrarRevista(id, titulo, ejemplares) : boolean
-+registrarUsuario(cedula, nombre) : boolean
-+prestarMaterial(idPrestamo, idMat, cedula, fecha) : String
-+devolverMaterial(idPrestamo, fechaDevolucion) : String
-+pagarMultasUsuario(cedula) : boolean
+### 7. Ejemplo de uso
 
-Libro y Revista heredan de Material. BibliotecaServicio gestiona las listas en memoria y ArchivoServicio las persiste en los archivos planos de texto.
-
-5. Operaciones de la clase BibliotecaServicio
-
-Método                     	       Qué hace
-registrarLibro, registrarRevista	Valida ID único, crea el ejemplar y actualiza materiales.txt.
-registrarUsuario	                Valida cédula única, crea el usuario y actualiza usuarios.txt.
-prestarMaterial	                        Verifica disponibilidad, límite de 3 préstamos y ausencia de multas antes de generar el préstamo.
-devolverMaterial	                Valida que no esté devuelto, restaura el stock, calcula multas por retraso y actualiza el saldo del usuario.
-pagarMultasUsuario	                Pone a cero la deuda del socio en memoria y en el archivo usuarios.txt.
-
-6. Reportes para el administrador
-
-Reporte                                     Método
-Préstamos vencidos a la fecha               reportePrestamosVencidos(hoy)
-Historial de préstamos de un usuario        reporteHistorialUsuario(cedula)
-Materiales más prestados                    reporteMaterialesMasPrestados()
-Total de multas generadas en un período     reporteTotalMultasPeriodo(desde, hasta)
-Auditoría de ejemplares disponibles         reporteAuditoriaDisponibles()
-
-7. Ejemplo de uso
-
+```java
 BibliotecaServicio servicio = new BibliotecaServicio();
 LocalDate hoy = LocalDate.now();
 
@@ -170,23 +105,30 @@ servicio.registrarLibro("L001", "Estructuras de Datos", 2);
 servicio.registrarRevista("R001", "IEEE Software", 1);
 servicio.registrarUsuario("1004567890", "Maria Guerrero");
 
-// Realizar préstamo de libro
+// Préstamo de libro
 servicio.prestarMaterial("P001", "L001", "1004567890", hoy);
 
-// Realizar préstamo de revista con fecha anterior (5 días atrás)
+// Préstamo de revista con fecha anterior (5 días atrás)
 servicio.prestarMaterial("P002", "R001", "1004567890", hoy.minusDays(5));
 
 // Devolución con retraso de la revista (plazo 3 días, retraso 2 días)
 servicio.devolverMaterial("P002", hoy);
+```
 
-Cálculo del ejemplo:
-Plazo de revista: 3 días.
-Días transcurridos: 5 días. Días de retraso: 2 días.
-Multa generada: 2 días × $0,50 = $1,00.
-Stock final: L001 tiene 1 disponible; R001 recupera su ejemplar y vuelve a tener 1 disponible.
+**Cálculo del ejemplo:**
 
-8. Ejemplo de salida de los reportes
+| Concepto | Valor |
+|---|---|
+| Plazo de la revista | 3 días |
+| Días transcurridos | 5 días |
+| Días de retraso | 2 días |
+| Multa generada | 2 × $0,50 = **$1,00** |
+| Stock final de `L001` | 1 disponible |
+| Stock final de `R001` | 1 disponible (recupera su ejemplar) |
 
+### 8. Ejemplo de salida de los reportes
+
+```text
 === PRÉSTAMOS VENCIDOS A LA FECHA ===
 Prestamo{id='P002', material='R001', usuario='1004567890', fechaEsperada=2026-10-31, estado=ACTIVO}
 
@@ -204,40 +146,58 @@ Total de multas cobradas: $1.00
 === AUDITORÍA DE EJEMPLARES DISPONIBLES ===
 L001 | Totales: 2 | Prestados: 1 | Disponibles: 1 -> [AUDITORÍA OK]
 R001 | Totales: 1 | Prestados: 0 | Disponibles: 1 -> [AUDITORÍA OK]
+```
 
-9. Decisiones de diseño
+![Salida de los reportes en la consola de NetBeans](https://i.postimg.cc/DZLwzmM5/image.png)
 
-Validación antes de persistir. prestarMaterial valida stock, límite de préstamos y ausencia de multas antes de modificar colecciones o escribir en disco.
-Cálculo polimórfico de multas. Cada subclase implementa getDiasPrestamo() y getMultaPorDia(), permitiendo que Prestamo calcule la sanción sin acoplarse al tipo concreto de material.
-Persistencia en archivos planos. Toda modificación se sincroniza inmediatamente con archivos delimitados por barra vertical (|) para evitar inconsistencias de datos ante cierres inesperados.
-Consola unificada con batería de pruebas. Main ofrece un menú interactivo con Scanner (opciones 1 a 7) y una opción 8 que autoejecuta la verificación completa sin entrada de usuario.
+### 9. Decisiones de diseño
 
-10. Pruebas
+- **Validación antes de persistir:** `prestarMaterial` valida stock, límite de préstamos y ausencia de multas antes de modificar colecciones o escribir en disco.
+- **Cálculo polimórfico de multas:** cada subclase implementa `getDiasPrestamo()` y `getMultaPorDia()`, así `Prestamo` calcula la sanción sin acoplarse al tipo concreto de material.
+- **Persistencia en archivos planos:** cada modificación se sincroniza de inmediato con archivos delimitados por barra vertical (`|`), evitando inconsistencias ante cierres inesperados.
+- **Consola unificada con pruebas:** `Main` ofrece un menú interactivo con `Scanner` (opciones 1 a 7) y una opción 8 que autoejecuta la verificación completa sin entrada de usuario.
 
-Main ejecuta 15 verificaciones automáticas y marca cada una con [OK] o [FALLO]:
+**Archivos generados** (`materiales.txt`, `usuarios.txt` y `prestamos.txt`):
 
-[OK] Préstamo exitoso de libro (P001)
-[OK] Disponibles de L001 disminuyen a 1
-[OK] Usuario María tiene 1 préstamo activo
-[OK] Préstamo exitoso de revista (P002)
-[OK] Disponibles de R001 quedan en 0
-[OK] Rechazo de préstamo sin ejemplares disponibles
-[OK] Usuario María alcanza el límite de 3 préstamos activos
-[OK] Rechazo de préstamo por exceder el máximo de 3 préstamos
-[OK] Devolución con retraso genera multa
-[OK] Usuario acumula $1.00 de multa pendiente
-[OK] Stock de R001 se restaura tras devolución
-[OK] Rechazo al intentar devolver dos veces el mismo préstamo
-[OK] Rechazo de préstamo a usuario con multas pendientes
-[OK] Pago total de multas exitoso
-[OK] Devolución a tiempo no genera multas
+![Archivos planos .txt generados](https://i.postimg.cc/g06YMnm2/image.png)
 
+### 10. Pruebas y ejecución
+
+**Para ejecutar en NetBeans:** abre el proyecto Maven `Tr1-BDD`, ubica `com.mycompany.tr1.bdd.ejercicio1.Main`, haz clic derecho sobre `Main.java` y selecciona **Run File** (o presiona **Shift + F6**).
+
+`Main` ejecuta **15 verificaciones automáticas** y marca cada una con `[OK]` o `[FALLO]`:
+
+| N.º | Verificación |
+|---|---|
+| 1 | Préstamo exitoso de libro (P001) |
+| 2 | Disponibles de L001 disminuyen a 1 |
+| 3 | Usuario María tiene 1 préstamo activo |
+| 4 | Préstamo exitoso de revista (P002) |
+| 5 | Disponibles de R001 quedan en 0 |
+| 6 | Rechazo de préstamo sin ejemplares disponibles |
+| 7 | Usuario María alcanza el límite de 3 préstamos activos |
+| 8 | Rechazo de préstamo por exceder el máximo de 3 préstamos |
+| 9 | Devolución con retraso genera multa |
+| 10 | Usuario acumula $1.00 de multa pendiente |
+| 11 | Stock de R001 se restaura tras la devolución |
+| 12 | Rechazo al devolver dos veces el mismo préstamo |
+| 13 | Rechazo de préstamo a usuario con multas pendientes |
+| 14 | Pago total de multas exitoso |
+| 15 | Devolución a tiempo no genera multas |
+
+**Resultado obtenido:**
+
+```text
 Pruebas OK: 15 | Fallidas: 0
 
-11. Autor
+BUILD SUCCESS
+```
 
-María José Guerrero - Ingeniería de Software, Universidad Técnica del Norte
+![Resultado de las 15 pruebas automáticas](https://i.postimg.cc/3N97yGCj/image.png)
 
+### 11. Autor
+
+María José Guerrero — Ingeniería de Software, Universidad Técnica del Norte (UTN).
 
 
 
