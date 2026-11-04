@@ -15,6 +15,7 @@ public class Cafeteria {
     private List<Venta> ventas = new ArrayList<>();
     private List<Abastecimiento> abastecimientos = new ArrayList<>();
     private List<MovimientoStock> movimientos = new ArrayList<>();
+    private PersistenciaTxt persistencia;
 
     private int siguienteIdAbastecimiento = 1;
     private int siguienteIdMovimiento = 1;
@@ -46,15 +47,19 @@ public class Cafeteria {
 
     public void agregarIngrediente(Ingrediente ingrediente) {
         ingredientes.add(ingrediente);
+        guardar();
     }
 
     public void agregarPlato(Plato plato) {
         platos.add(plato);
+        guardar();
     }
 
     public void agregarBebida(Bebida bebida) {
         bebidas.add(bebida);
+        guardar();
     }
+
 
     public void abastecer(Ingrediente ingrediente, double cantidad, double costoUnitario) {
         if (!ingredientes.contains(ingrediente)) {
@@ -81,6 +86,7 @@ public class Cafeteria {
         movimientos.add(new MovimientoStock(
                 siguienteIdMovimiento++, ahora, ingrediente, TipoMovimiento.ABASTECIMIENTO,
                 cantidad, stockAnterior, stockNuevo, abastecimiento.getId()));
+        guardar();
     }
 
     public Venta vender(Map<Producto, Integer> pedido) {
@@ -154,6 +160,7 @@ public class Cafeteria {
         }
 
         ventas.add(venta);
+        guardar();
         return venta;
 
     }
@@ -178,6 +185,7 @@ public class Cafeteria {
                     "No se puede eliminar " + ingrediente.getNombre() + ": forma parte de una receta");
         }
         ingredientes.remove(ingrediente);
+        guardar();
     }
 
     public void reporteCostosPlatos() {
@@ -295,6 +303,37 @@ public class Cafeteria {
                 System.out.println(ingrediente.getNombre() + ": DIFERENCIA (último movimiento "
                         + ultimo.getStockResultante() + ", stock actual " + ingrediente.getStockActual() + ")");
             }
+        }
+
+    }
+
+    public Cafeteria() {
+        // sin archivo: no guarda nada (sirve para las pruebas)
+    }
+
+    public Cafeteria(String rutaArchivo) {
+        this.persistencia = new PersistenciaTxt(rutaArchivo);
+        if (persistencia.existe()) {
+            persistencia.cargar(this);
+            recalcularContadores();
+        }
+    }
+
+    private void guardar() {
+        if (persistencia != null) {
+            persistencia.guardar(this);
+        }
+    }
+
+    private void recalcularContadores() {
+        for (Abastecimiento a : abastecimientos) {
+            siguienteIdAbastecimiento = Math.max(siguienteIdAbastecimiento, a.getId() + 1);
+        }
+        for (MovimientoStock m : movimientos) {
+            siguienteIdMovimiento = Math.max(siguienteIdMovimiento, m.getId() + 1);
+        }
+        for (Venta v : ventas) {
+            siguienteIdVenta = Math.max(siguienteIdVenta, v.getId() + 1);
         }
     }
 }
