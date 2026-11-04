@@ -1,4 +1,3 @@
-
 package com.mycompany.tr1.bdd.ejercicio2;
 
 import com.mycompany.tr1.bdd.ejercicio2.modelo.*;
@@ -14,34 +13,68 @@ public class Main {
         cooperativa.registrarSocio("1002003004", "Ana Lopez");
 
         CuentaAhorro ahorro = cooperativa.crearAhorro(
-                "001", "1002003004", new BigDecimal("100.00"));
+                "001", "1002003004", new BigDecimal("1200.00"));
 
         CuentaCorriente corriente = cooperativa.crearCorriente(
                 "002", "1002003004", new BigDecimal("50.00"));
 
-        cooperativa.transferir("001", "002", new BigDecimal("20.00"));
+        cooperativa.crearCorriente(
+                "003", "1002003004", BigDecimal.ZERO);
 
-        System.out.println("Transferencia exitosa:");
-        System.out.println("Ahorros: $" + ahorro.getSaldo());
-        System.out.println("Corriente: $" + corriente.getSaldo());
+        // PRUEBA 1: INTERESES MENSUALES
 
-        int movimientosAhorro = ahorro.getMovimientos().size();
-        int movimientosCorriente = corriente.getMovimientos().size();
+        System.out.println("=== INTERESES ===");
+
+        System.out.println("Interes mensual previsto: $"
+                + ahorro.calcularInteresMensual());
+
+        System.out.println("Intereses acreditados: "
+                + cooperativa.aplicarInteresesDelMes().size());
+
+        System.out.println("Saldo ahorro: $"
+                + ahorro.getSaldo());
+
+        System.out.println("Segunda aplicacion en el mismo mes: "
+                + cooperativa.aplicarInteresesDelMes().size());
+
+        // PRUEBA 2: CIERRE CON SALDO DISTINTO DE CERO
+
+        System.out.println("\n=== CIERRE DE CUENTAS ===");
 
         try {
-            cooperativa.transferir("001", "002", new BigDecimal("100.00"));
+            cooperativa.cerrarCuenta("001");
         } catch (IllegalStateException e) {
-            System.out.println("Transferencia rechazada: " + e.getMessage());
+            System.out.println("Cierre rechazado: " + e.getMessage());
         }
 
-        System.out.println("Saldos despues del rechazo: $"
-                + ahorro.getSaldo() + " y $" + corriente.getSaldo());
+        // PRUEBA 3: CIERRE DE CUENTA CON MOVIMIENTOS
 
-        System.out.println("Movimientos conservados: "
-                + movimientosAhorro + " y " + movimientosCorriente);
+        cooperativa.retirar("002", new BigDecimal("50.00"));
 
-        System.out.println("Movimientos actuales: "
-                + ahorro.getMovimientos().size() + " y "
-                + corriente.getMovimientos().size());
+        System.out.println("Saldo corriente: $"
+                + corriente.getSaldo());
+
+        cooperativa.cerrarCuenta("002");
+
+        System.out.println("Cuenta 002 activa: "
+                + corriente.isActiva());
+
+        // PRUEBA 4: OPERACION EN CUENTA INACTIVA
+
+        try {
+            cooperativa.depositar("002", new BigDecimal("10.00"));
+        } catch (IllegalStateException e) {
+            System.out.println("Deposito rechazado: " + e.getMessage());
+        }
+
+        // PRUEBA 5: ELIMINAR CUENTA SIN MOVIMIENTOS
+
+        cooperativa.cerrarCuenta("003");
+
+        try {
+            cooperativa.buscarCuenta("003");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Cuenta 003 eliminada: " + e.getMessage());
+        }
     }
 }

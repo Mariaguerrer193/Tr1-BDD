@@ -127,4 +127,20 @@ public abstract class Cuenta implements Serializable {
         return numero + " (" + getTipo() + ") saldo $" + saldo
                 + (activa ? " [activa]" : " [inactiva]");
     }
+    
+    public void desactivar() {
+
+        if (!activa) {
+            throw new IllegalStateException(
+                    "La cuenta ya se encuentra inactiva.");
+        }
+
+        if (saldo.compareTo(BigDecimal.ZERO) != 0) {
+            throw new IllegalStateException(
+                    "No se puede desactivar una cuenta con saldo diferente de cero.");
+        }
+
+        activa = false;
+    }
+
 }

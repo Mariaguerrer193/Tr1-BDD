@@ -9,6 +9,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class Cooperativa implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -180,4 +183,57 @@ public final class Cooperativa implements Serializable {
         destino.depositar(siguienteMovimiento++,
                 fecha, valor, referencia);
     }
+    
+    
+public synchronized List<Movimiento> aplicarInteresesDelMes() {
+
+    LocalDateTime fecha = LocalDateTime.now();
+    YearMonth mes = YearMonth.from(fecha);
+
+    List<Movimiento> acreditados = new ArrayList<>();
+
+    for (Cuenta cuenta : cuentas.values()) {
+
+        if (cuenta instanceof CuentaAhorro ahorro
+                && ahorro.isActiva()
+                && !ahorro.tieneInteresEnMes(mes)) {
+
+            Movimiento movimiento = ahorro.acreditarInteresMensual(
+                    siguienteMovimiento, fecha);
+
+            siguienteMovimiento++;
+            acreditados.add(movimiento);
+        }
+    }
+
+    return acreditados;
+    
+    }
+
+    public synchronized void cerrarCuenta(String numero) {
+
+        Cuenta cuenta = buscarCuenta(numero);
+
+        if (!cuenta.isActiva()) {
+            throw new IllegalStateException(
+                    "La cuenta ya se encuentra inactiva.");
+        }
+
+        if (cuenta.getSaldo().compareTo(BigDecimal.ZERO) != 0) {
+            throw new IllegalStateException(
+                    "No se puede cerrar una cuenta con saldo diferente de cero.");
+        }
+
+        if (!cuenta.getMovimientos().isEmpty()) {
+
+            cuenta.desactivar();
+
+        } else {
+
+            cuentas.remove(cuenta.getNumero());
+
+        }
+    }
+
+
 }
