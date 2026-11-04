@@ -5,8 +5,8 @@
 package com.mycompany.tr1.bdd.ejercicio3.servicio;
 
 
-
 import com.mycompany.tr1.bdd.ejercicio3.modelo.Pasajero;
+import com.mycompany.tr1.bdd.ejercicio3.modelo.TipoPasajero;
 import java.util.ArrayList;
 import java.util.List;
 /**
@@ -16,14 +16,14 @@ import java.util.List;
 public class PasajeroServicio {
     
     
-    
-    
-    private List<Pasajero> pasajeros;
+   private List<Pasajero> pasajeros;
     private ArchivoServicio archivo;
 
     public PasajeroServicio(ArchivoServicio archivo) {
         this.pasajeros = new ArrayList<>();
         this.archivo = archivo;
+
+        cargarPasajeros();
     }
 
     public void registrarPasajero(Pasajero pasajero) {
@@ -55,5 +55,42 @@ public class PasajeroServicio {
 
     public List<Pasajero> listarPasajeros() {
         return new ArrayList<>(pasajeros);
+    }
+
+    private void cargarPasajeros() {
+
+        String contenido = archivo.leer("pasajeros.txt");
+
+        if (contenido.isEmpty()) {
+            return;
+        }
+
+        String[] lineas = contenido.split("\\n");
+
+        for (String linea : lineas) {
+
+            String[] datos = linea.split("\\|", -1);
+
+            if (datos.length == 3) {
+                try {
+                    String cedula = datos[0];
+                    String nombre = datos[1];
+                    TipoPasajero tipo = TipoPasajero.valueOf(datos[2]);
+
+                    Pasajero pasajero = new Pasajero(
+                            cedula, nombre, tipo
+                    );
+
+                    if (buscarPasajero(cedula) == null) {
+                        pasajeros.add(pasajero);
+                    }
+
+                } catch (IllegalArgumentException e) {
+                    System.out.println(
+                            "Error al cargar un pasajero: " + linea
+                    );
+                }
+            }
+        }
     }
 }

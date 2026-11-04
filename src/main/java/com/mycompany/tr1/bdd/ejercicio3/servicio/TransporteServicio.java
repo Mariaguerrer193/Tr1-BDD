@@ -14,9 +14,10 @@ public class TransporteServicio {
 
         rutaServicio = new RutaServicio(archivoServicio);
         pasajeroServicio = new PasajeroServicio(archivoServicio);
-        viajeServicio = new ViajeServicio(archivoServicio);
-        boletoServicio = new BoletoServicio(archivoServicio);
-    }
+        viajeServicio = new ViajeServicio(archivoServicio, rutaServicio);
+
+boletoServicio = new BoletoServicio( archivoServicio,viajeServicio, pasajeroServicio
+);}
 
     public RutaServicio getRutaServicio() {
         return rutaServicio;
