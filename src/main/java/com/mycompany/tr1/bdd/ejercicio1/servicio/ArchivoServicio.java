@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,11 +24,21 @@ import java.util.List;
  * @author maria
  */
 public class ArchivoServicio {
-    private static final String RUTA_MATERIALES = "materiales.txt";
-    private static final String RUTA_USUARIOS = "usuarios.txt";
-    private static final String RUTA_PRESTAMOS = "prestamos.txt";
+    private static final String CARPETA_DATOS = "datos";
+    private static final String RUTA_MATERIALES = CARPETA_DATOS + "/materiales.txt";
+    private static final String RUTA_USUARIOS = CARPETA_DATOS + "/usuarios.txt";
+    private static final String RUTA_PRESTAMOS = CARPETA_DATOS + "/prestamos.txt";
+
+    private static void asegurarCarpeta() {
+        try {
+            Files.createDirectories(Paths.get(CARPETA_DATOS));
+        } catch (IOException e) {
+            System.err.println("No se pudo crear la carpeta datos: " + e.getMessage());
+        }
+    }
 
     public static void guardarMateriales(List<Material> materiales) {
+        asegurarCarpeta();
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(RUTA_MATERIALES))) {
             for (Material m : materiales) {
                 bw.write(m.getTipo() + "|" + m.getId() + "|" + m.getTitulo() + "|" +
@@ -76,6 +88,7 @@ public class ArchivoServicio {
     }
 
     public static void guardarUsuarios(List<Usuario> usuarios) {
+        asegurarCarpeta();
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(RUTA_USUARIOS))) {
             for (Usuario u : usuarios) {
                 bw.write(u.getCedula() + "|" + u.getNombre() + "|" +
@@ -111,6 +124,7 @@ public class ArchivoServicio {
     }
 
     public static void guardarPrestamos(List<Prestamo> prestamos) {
+        asegurarCarpeta();
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(RUTA_PRESTAMOS))) {
             for (Prestamo p : prestamos) {
                 String devReal = (p.getFechaDevolucionReal() == null) ? "NULL" : p.getFechaDevolucionReal().toString();
