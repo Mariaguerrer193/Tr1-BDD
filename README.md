@@ -1,4 +1,4 @@
-Tr1-BDD
+
 
 Proyecto de Java (Maven) de la Universidad Técnica del Norte (UTN) que reúne varios ejercicios, cada uno en su propio paquete dentro de com.mycompany.tr1.bdd.
 
@@ -311,6 +311,10 @@ ejercicio4/
 │   └── TipoMovimiento.java   (enum: ABASTECIMIENTO, VENTA)
 └── servicio/
     └── Cafeteria.java        (lógica de negocio y reportes)
+
+
+
+<img width="417" height="559" alt="image" src="https://github.com/user-attachments/assets/136f534c-c6be-4163-8bfe-c8dd0ccbcb0e" />
 4. Diagrama de clases
 «abstract»
 Producto
@@ -366,6 +370,10 @@ Cafeteria
 -List<Venta> ventas
 -List<Abastecimiento> abastecimientos
 -List<MovimientoStock> movimientos
+<img width="716" height="598" alt="image" src="https://github.com/user-attachments/assets/ec6e000a-e6ac-42d9-8ddb-919e2b638cff" />
+<img width="927" height="735" alt="image" src="https://github.com/user-attachments/assets/d6f0f808-3fd5-4517-a785-b0a2cf037981" />
+<img width="881" height="770" alt="image" src="https://github.com/user-attachments/assets/f2c4965a-539a-4020-bd91-237e27d4c097" />
+<img width="832" height="420" alt="image" src="https://github.com/user-attachments/assets/2e970ef8-6100-4758-a3b2-e9ab30d6c9a1" />
 
 Plato y Bebida heredan de Producto. Gracias a eso, DetalleVenta guarda un Producto y una misma venta puede mezclar platos y bebidas.
 
@@ -459,10 +467,20 @@ Venta válida con descuento de stock.
 Rechazo por ingredientes insuficientes, por ingrediente compartido entre platos y por falta de stock de bebida.
 Eliminación permitida y bloqueada de ingredientes.
 Lista de compras, platos preparables y movimientos de auditoría.
+<img width="1060" height="808" alt="image" src="https://github.com/user-attachments/assets/af92b711-2fe7-47c3-a6d3-c874d73900ce" />
+<img width="1078" height="845" alt="image" src="https://github.com/user-attachments/assets/307b1843-24cf-4a3b-a4e3-8b73c61b0fbc" />
+<img width="1027" height="851" alt="image" src="https://github.com/user-attachments/assets/ae2854e5-2bcd-47a3-b293-5b38157e5b57" />
+<img width="1084" height="424" alt="image" src="https://github.com/user-attachments/assets/d61c07ec-cefe-40d7-ab44-f7d6ab41d6bb" />
+
 
 Al final imprime los reportes y el resumen:
 
 Pruebas OK: 20 | Fallidas: 0
+
+<img width="561" height="411" alt="image" src="https://github.com/user-attachments/assets/3b1a8a0a-70cc-45c9-a733-2e211d8d7329" />
+<img width="587" height="396" alt="image" src="https://github.com/user-attachments/assets/00fbc81f-ff78-48c5-9f2b-eabed732192a" />
+
+
 11. Autor
 
 Juan Diego - Ingeniería de Software, Universidad Técnica del Norte (UTN).
