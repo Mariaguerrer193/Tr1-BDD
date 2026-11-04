@@ -15,9 +15,12 @@ import java.util.List;
 
 
 
+
+
+
+
 public class RutaServicio {
 
-    
     private List<Ruta> rutas;
     private ArchivoServicio archivo;
 
@@ -28,7 +31,51 @@ public class RutaServicio {
         cargarRutas();
     }
 
+    private void cargarRutas() {
+
+        String contenido = archivo.leer("rutas.txt");
+
+        if (contenido.isBlank()) {
+            return;
+        }
+
+        String[] lineas = contenido.split("\\n");
+
+        for (String linea : lineas) {
+
+            try {
+                String[] datos = linea.split("\\|");
+
+                if (datos.length == 3) {
+
+                    int id = Integer.parseInt(datos[0]);
+
+                    String origen = datos[1];
+                    String destino = datos[2];
+
+                    Ruta ruta = new Ruta(id, origen, destino);
+
+                    rutas.add(ruta);
+                }
+
+            } catch (NumberFormatException e) {
+                System.out.println("Error al cargar una ruta: " + linea);
+            }
+        }
+    }
+
     public void registrarRuta(Ruta ruta) {
+
+        if (ruta == null) {
+            System.out.println("La ruta no puede ser nula.");
+            return;
+        }
+
+        if (ruta.getOrigen() == null || ruta.getOrigen().isBlank()
+                || ruta.getDestino() == null || ruta.getDestino().isBlank()) {
+            System.out.println("El origen y el destino son obligatorios.");
+            return;
+        }
 
         if (buscarRuta(ruta.getId()) != null) {
             System.out.println("La ruta ya existe.");
@@ -42,6 +89,8 @@ public class RutaServicio {
                 + ruta.getDestino();
 
         archivo.guardar("rutas.txt", datos);
+
+        System.out.println("Ruta registrada correctamente.");
     }
 
     public Ruta buscarRuta(int id) {
@@ -57,38 +106,5 @@ public class RutaServicio {
 
     public List<Ruta> listarRutas() {
         return new ArrayList<>(rutas);
-    }
-
-    private void cargarRutas() {
-
-        String contenido = archivo.leer("rutas.txt");
-
-        if (contenido.isEmpty()) {
-            return;
-        }
-
-        String[] lineas = contenido.split("\\n");
-
-        for (String linea : lineas) {
-
-            String[] datos = linea.split("\\|", -1);
-
-            if (datos.length == 3) {
-                try {
-                    int id = Integer.parseInt(datos[0]);
-                    String origen = datos[1];
-                    String destino = datos[2];
-
-                    Ruta ruta = new Ruta(id, origen, destino);
-
-                    if (buscarRuta(id) == null) {
-                        rutas.add(ruta);
-                    }
-
-                } catch (NumberFormatException e) {
-                    System.out.println("Error al cargar una ruta: " + linea);
-                }
-            }
-        }
     }
 }
